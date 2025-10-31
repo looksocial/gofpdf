@@ -1151,8 +1151,10 @@ func keySortArrayRangeMap(s map[int][]int) []int {
 }
 
 // UTF8CutFont is a utility function that generates a TrueType font composed
-// only of the runes included in cutset. The rune glyphs are copied from This
-// function is demonstrated in ExampleUTF8CutFont().
+// only of the runes included in cutset. The rune glyphs are copied from the
+// input font buffer. This is useful for creating smaller font subsets containing
+// only the characters needed for a specific document. This function is
+// demonstrated in ExampleUTF8CutFont().
 func UTF8CutFont(inBuf []byte, cutset string) (outBuf []byte) {
 	f := newUTF8Font(&fileReader{readerPosition: 0, array: inBuf})
 	runes := map[int]int{}

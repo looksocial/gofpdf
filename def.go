@@ -141,19 +141,26 @@ type spotColorType struct {
 
 // CMYKColorType specifies an ink-based CMYK color value
 type cmykColorType struct {
-	c, m, y, k byte // 0% to 100%
+	// c, m, y, k are the cyan, magenta, yellow, and black components, each ranging from 0% to 100%.
+	c, m, y, k byte
 }
 
 // SizeType fields Wd and Ht specify the horizontal and vertical extents of a
 // document element such as a page.
 type SizeType struct {
-	Wd, Ht float64
+	// Wd is the width of the element in the current unit of measure.
+	Wd float64
+	// Ht is the height of the element in the current unit of measure.
+	Ht float64
 }
 
 // PointType fields X and Y specify the horizontal and vertical coordinates of
 // a point, typically used in drawing.
 type PointType struct {
-	X, Y float64
+	// X is the horizontal coordinate of the point in the current unit of measure.
+	X float64
+	// Y is the vertical coordinate of the point in the current unit of measure.
+	Y float64
 }
 
 // XY returns the X and Y components of the receiver point.
@@ -294,11 +301,16 @@ type outlineType struct {
 // zero, Size will be used to set the default page size rather than SizeStr. Wd
 // and Ht are specified in the units of measure indicated by UnitStr.
 type InitType struct {
+	// OrientationStr specifies the default page orientation ("P" for portrait, "L" for landscape)
 	OrientationStr string
-	UnitStr        string
-	SizeStr        string
-	Size           SizeType
-	FontDirStr     string
+	// UnitStr specifies the unit of measure ("pt", "mm", "cm", "inch")
+	UnitStr string
+	// SizeStr specifies a standard page size ("A3", "A4", "A5", "Letter", "Legal", "Tabloid")
+	SizeStr string
+	// Size specifies a custom page size (used if Wd and Ht are both greater than zero)
+	Size SizeType
+	// FontDirStr specifies the directory where font resources are located
+	FontDirStr string
 }
 
 // FontLoader is used to read fonts (JSON font specification and zlib compressed font binaries)
@@ -491,6 +503,8 @@ type Pdf interface {
 }
 
 // PageBox defines the coordinates and extent of the various page box types
+// used in PDF printing (such as MediaBox, CropBox, BleedBox, etc.).
+// It embeds SizeType for dimensions and PointType for position.
 type PageBox struct {
 	SizeType
 	PointType

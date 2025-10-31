@@ -551,9 +551,10 @@ func (f *Fpdf) SetDisplayMode(zoomStr, layoutStr string) {
 	}
 }
 
-// SetDefaultCompression controls the default setting of the internal
-// compression flag. See SetCompression() for more details. Compression is on
-// by default.
+// SetDefaultCompression sets the default compression state for all new Fpdf
+// instances created after this call. When compress is true, PDF output will
+// be compressed, reducing file size. The default state is true (compression enabled).
+// See SetCompression() for more details.
 func SetDefaultCompression(compress bool) {
 	gl.noCompress = !compress
 }
@@ -3292,8 +3293,14 @@ func (f *Fpdf) RegisterImageReader(imgName, tp string, r io.Reader) (info *Image
 // AllowNegativePosition can be set to true in order to prevent the default
 // coercion of negative x values to the current x position.
 type ImageOptions struct {
-	ImageType             string
-	ReadDpi               bool
+	// ImageType specifies the image format type (e.g., "JPG", "PNG", "GIF").
+	// This should be specified when using RegisterImageOptionsReader().
+	ImageType string
+	// ReadDpi indicates whether to read DPI information from the image file.
+	// For PNG images, this will automatically extract DPI metadata if available.
+	ReadDpi bool
+	// AllowNegativePosition, when true, prevents automatic coercion of negative
+	// x coordinate values to the current x position.
 	AllowNegativePosition bool
 }
 
@@ -3938,9 +3945,10 @@ func (f *Fpdf) outf(fmtStr string, args ...interface{}) {
 	f.out(sprintf(fmtStr, args...))
 }
 
-// SetDefaultCatalogSort sets the default value of the catalog sort flag that
-// will be used when initializing a new Fpdf instance. See SetCatalogSort() for
-// more details.
+// SetDefaultCatalogSort sets the default catalog sort flag for all new Fpdf
+// instances created after this call. When flag is true, the PDF catalog will
+// be sorted for consistent output ordering. This is useful for reproducible
+// PDF generation. See SetCatalogSort() for more details.
 func SetDefaultCatalogSort(flag bool) {
 	gl.catalogSort = flag
 }
@@ -3952,16 +3960,18 @@ func (f *Fpdf) SetCatalogSort(flag bool) {
 	f.catalogSort = flag
 }
 
-// SetDefaultCreationDate sets the default value of the document creation date
-// that will be used when initializing a new Fpdf instance. See
-// SetCreationDate() for more details.
+// SetDefaultCreationDate sets the default creation date for all new Fpdf
+// instances created after this call. This date will be used in the PDF
+// metadata unless overridden by SetCreationDate(). See SetCreationDate()
+// for more details.
 func SetDefaultCreationDate(tm time.Time) {
 	gl.creationDate = tm
 }
 
-// SetDefaultModificationDate sets the default value of the document modification date
-// that will be used when initializing a new Fpdf instance. See
-// SetCreationDate() for more details.
+// SetDefaultModificationDate sets the default modification date for all new
+// Fpdf instances created after this call. This date will be used in the PDF
+// metadata unless overridden by SetModificationDate(). See SetModificationDate()
+// for more details.
 func SetDefaultModificationDate(tm time.Time) {
 	gl.modDate = tm
 }

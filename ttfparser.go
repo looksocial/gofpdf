@@ -32,20 +32,34 @@ import (
 
 // TtfType contains metrics of a TrueType font.
 type TtfType struct {
-	Embeddable             bool
-	UnitsPerEm             uint16
-	PostScriptName         string
-	Bold                   bool
-	ItalicAngle            int16
-	IsFixedPitch           bool
-	TypoAscender           int16
-	TypoDescender          int16
-	UnderlinePosition      int16
-	UnderlineThickness     int16
+	// Embeddable indicates whether the font license allows embedding in PDF documents.
+	Embeddable bool
+	// UnitsPerEm specifies the number of units per em square, used for scaling font metrics.
+	UnitsPerEm uint16
+	// PostScriptName is the PostScript name of the font.
+	PostScriptName string
+	// Bold indicates whether the font is bold.
+	Bold bool
+	// ItalicAngle specifies the italic angle of the font in degrees (counter-clockwise from vertical).
+	ItalicAngle int16
+	// IsFixedPitch indicates whether the font is monospaced (fixed-width).
+	IsFixedPitch bool
+	// TypoAscender is the typographic ascender value.
+	TypoAscender int16
+	// TypoDescender is the typographic descender value.
+	TypoDescender int16
+	// UnderlinePosition specifies the position of the underline from the baseline.
+	UnderlinePosition int16
+	// UnderlineThickness specifies the thickness of the underline.
+	UnderlineThickness int16
+	// Xmin, Ymin, Xmax, Ymax define the font bounding box coordinates.
 	Xmin, Ymin, Xmax, Ymax int16
-	CapHeight              int16
-	Widths                 []uint16
-	Chars                  map[uint16]uint16
+	// CapHeight is the height of capital letters.
+	CapHeight int16
+	// Widths contains the width values for each glyph in the font.
+	Widths []uint16
+	// Chars maps Unicode code points to glyph indices.
+	Chars map[uint16]uint16
 }
 
 type ttfParser struct {
