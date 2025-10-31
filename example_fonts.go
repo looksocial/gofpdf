@@ -10,6 +10,7 @@ import (
 	"github.com/looksocial/gofpdf"
 )
 
+// main เรียกฟังก์ชันตัวอย่างการใช้งานฟอนต์ของแพ็กเกจเป็นลำดับ ได้แก่ การใช้งานฟอนต์ฝังตัว การโหลดฟอนต์ภายนอก เอกสารภาษาไทย และการแสดงหลายฟอนต์ในเอกสาร PDF.
 func main() {
 	// Example 1: Using Embedded Fonts (Simplest - Recommended)
 	example1_EmbeddedFonts()
@@ -24,7 +25,8 @@ func main() {
 	example4_MultipleFonts()
 }
 
-// Example 1: Using embedded fonts (no external files needed)
+// example1_EmbeddedFonts สาธิตการสร้างเอกสาร PDF โดยใช้ฟอนต์ฝัง (embedded) โดยไม่ต้องมีไฟล์ฟอนต์ภายนอก
+// ฟังก์ชันจะเขียนข้อความตัวอย่างด้วยฟอนต์ Kanit และ Sarabun ลงในไฟล์ example1_embedded.pdf และจะบันทึกไฟล์นี้ (เรียก log.Fatal หากการบันทึกล้มเหลว)
 func example1_EmbeddedFonts() {
 	fmt.Println("Example 1: Embedded Fonts")
 
@@ -55,7 +57,9 @@ func example1_EmbeddedFonts() {
 	fmt.Println("✓ Created example1_embedded.pdf")
 }
 
-// Example 2: Using external font files with auto-load
+// example2_ExternalFontsAutoLoad สาธิตการใช้ไฟล์ฟอนต์ภายนอกโดยเปิดใช้งานการโหลดอัตโนมัติจากโฟลเดอร์ค้นหาฟอนต์
+//
+// ตั้งตำแหน่งค้นหาฟอนต์เป็น "font/th" เพื่อให้ไลบรารีสามารถโหลดไฟล์ฟอนต์ (เช่น Kanit และ Kanit-Bold) จากโฟลเดอร์ย่อยโดยอัตโนมัติ; หากฟอนต์ไม่พร้อมใช้งาน ฟังก์ชันจะพิมพ์หมายเหตุแล้วคืนค่าโดยไม่สร้างไฟล์ PDF. เมื่อฟอนต์ถูกโหลดสำเร็จ ฟังก์ชันจะสร้างไฟล์ example2_autoload.pdf ในไดเรกทอรีปัจจุบัน.
 func example2_ExternalFontsAutoLoad() {
 	fmt.Println("\nExample 2: External Fonts with Auto-Load")
 
@@ -89,7 +93,8 @@ func example2_ExternalFontsAutoLoad() {
 	fmt.Println("✓ Created example2_autoload.pdf")
 }
 
-// Example 3: Thai language document
+// example3_ThaiDocument สร้างไฟล์ PDF ชื่อ "example3_thai.pdf" ที่แสดงตัวอย่างการใช้งานฟอนต์ภาษาไทยแบบฝัง
+// ฟังก์ชันจะเพิ่มหน้ากระดาษและเขียนหัวเรื่อง ข้อความยาวแบบหลายบรรทัด ข้อความผสมไทย-อังกฤษ ตัวเลขไทย และตัวอย่างสไตล์ตัวเอียง/ตัวหนา-เอียง โดยใช้ฟอนต์ที่ฝังมาในไฟล์ PDF และปิดไฟล์เมื่อเสร็จสิ้น.
 func example3_ThaiDocument() {
 	fmt.Println("\nExample 3: Thai Language Document")
 
@@ -134,7 +139,9 @@ func example3_ThaiDocument() {
 	fmt.Println("✓ Created example3_thai.pdf")
 }
 
-// Example 4: Multiple font families and styles
+// example4_MultipleFonts สร้างเอกสาร PDF ที่แสดงตัวอย่างฟอนต์หลายครอบครัว สไตล์ และขนาด
+// ฟังก์ชันจะนำฟอนต์ที่ฝังมาใช้ แสดงรายการฟอนต์ที่มี ลองโหลดฟอนต์หลายแบบแล้วข้ามฟอนต์ที่ไม่พร้อมใช้งาน
+// และบันทึกไฟล์เป็น example4_gallery.pdf.
 func example4_MultipleFonts() {
 	fmt.Println("\nExample 4: Multiple Fonts and Styles")
 
@@ -199,7 +206,8 @@ func example4_MultipleFonts() {
 	fmt.Println("✓ Created example4_gallery.pdf")
 }
 
-// Bonus Example: Working with core fonts and embedded fonts together
+// example5_MixedFonts สาธิตการใช้ฟอนต์ core (ฝังใน PDF reader) ร่วมกับฟอนต์ embedded ในเอกสาร PDF เดียวกัน.
+// สร้างหน้า PDF ที่แสดงข้อความตัวอย่างด้วยฟอนต์ core (เช่น Arial, Times) และฟอนต์ embedded (เช่น Kanit, Sarabun) แล้วบันทึกเป็นไฟล์ example5_mixed.pdf.
 func example5_MixedFonts() {
 	fmt.Println("\nExample 5: Mixed Core and Embedded Fonts")
 
