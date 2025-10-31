@@ -10,25 +10,46 @@ func unused(args ...interface{}) {
 
 // RGBType holds fields for red, green and blue color components (0..255)
 type RGBType struct {
-	R, G, B int
+	// R is the red component (0-255)
+	R int
+	// G is the green component (0-255)
+	G int
+	// B is the blue component (0-255)
+	B int
 }
 
 // RGBAType holds fields for red, green and blue color components (0..255) and
 // an alpha transparency value (0..1)
 type RGBAType struct {
-	R, G, B int
-	Alpha   float64
+	// R is the red component (0-255)
+	R int
+	// G is the green component (0-255)
+	G int
+	// B is the blue component (0-255)
+	B int
+	// Alpha is the transparency value (0.0 = fully transparent, 1.0 = fully opaque)
+	Alpha float64
 }
 
 // StateType holds various commonly used drawing values for convenient
 // retrieval (StateGet()) and restore (Put) methods.
 type StateType struct {
-	clrDraw, clrText, clrFill RGBType
-	lineWd                    float64
-	fontSize                  float64
-	alpha                     float64
-	blendStr                  string
-	cellMargin                float64
+	// clrDraw is the current drawing color
+	clrDraw RGBType
+	// clrText is the current text color
+	clrText RGBType
+	// clrFill is the current fill color
+	clrFill RGBType
+	// lineWd is the current line width
+	lineWd float64
+	// fontSize is the current font size
+	fontSize float64
+	// alpha is the current alpha transparency value
+	alpha float64
+	// blendStr is the current blend mode string
+	blendStr string
+	// cellMargin is the current cell margin
+	cellMargin float64
 }
 
 // StateGet returns a variable that contains common state values.
@@ -67,28 +88,39 @@ func defaultFormatter(val float64, precision int) string {
 // work with logical data coordinates rather than page coordinates and assists
 // with the drawing of a background grid.
 type GridType struct {
-	// Chart coordinates in page units
+	// x, y, w, h are the chart coordinates in page units (internal use)
 	x, y, w, h float64
-	// X, Y, Wd, Ht float64
-	// Slopes and intercepts scale data points to graph coordinates linearly
+	// xm, xb, ym, yb are slopes and intercepts that scale data points to graph coordinates linearly (internal use)
 	xm, xb, ym, yb float64
-	// Tickmarks
+	// xTicks, yTicks are arrays of tickmark values (internal use)
 	xTicks, yTicks []float64
-	// Labels are inside of graph boundary
-	XLabelIn, YLabelIn bool
-	// Labels on X-axis should be rotated
+	// XLabelIn indicates whether X-axis labels should be drawn inside the graph boundary
+	XLabelIn bool
+	// YLabelIn indicates whether Y-axis labels should be drawn inside the graph boundary
+	YLabelIn bool
+	// XLabelRotate indicates whether X-axis labels should be rotated 90 degrees
 	XLabelRotate bool
-	// Formatters; use nil to eliminate labels
-	XTickStr, YTickStr TickFormatFncType
-	// Subdivisions between tickmarks
-	XDiv, YDiv int
-	// Formatting precision
+	// XTickStr is a formatter function for X-axis labels; use nil to eliminate labels
+	XTickStr TickFormatFncType
+	// YTickStr is a formatter function for Y-axis labels; use nil to eliminate labels
+	YTickStr TickFormatFncType
+	// XDiv specifies the number of subdivisions between X-axis tickmarks
+	XDiv int
+	// YDiv specifies the number of subdivisions between Y-axis tickmarks
+	YDiv int
+	// xPrecision, yPrecision are formatting precision values (internal use)
 	xPrecision, yPrecision int
-	// Line and label colors
-	ClrText, ClrMain, ClrSub RGBAType
-	// Line thickness
-	WdMain, WdSub float64
-	// Label height in points
+	// ClrText is the color used for text labels
+	ClrText RGBAType
+	// ClrMain is the color used for main grid lines
+	ClrMain RGBAType
+	// ClrSub is the color used for subdivision grid lines
+	ClrSub RGBAType
+	// WdMain is the line thickness for main grid lines
+	WdMain float64
+	// WdSub is the line thickness for subdivision grid lines
+	WdSub float64
+	// TextSize is the label height in points
 	TextSize float64
 }
 

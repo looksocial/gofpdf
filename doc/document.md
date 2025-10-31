@@ -11,7 +11,9 @@ text, drawing and images.
 
 ## Features
 
-* UTF-8 support
+* **Embedded Thai fonts** - font families bundled with the package
+* **UTF-8 support** - Full Unicode support including Thai, Chinese, Arabic, etc.
+* **Auto-loading fonts** - Automatically loads fonts on first use
 * Choice of measurement unit, page format and margins
 * Page header and footer management
 * Automatic page breaks, line breaks, and text justification
@@ -34,29 +36,38 @@ text, drawing and images.
 gofpdf has no dependencies other than the Go standard library. All tests pass
 on Linux, Mac and Windows platforms.
 
-gofpdf supports UTF-8 TrueType fonts and "right-to-left" languages. Note that
-Chinese, Japanese, and Korean characters may not be included in many general
-purpose fonts. For these languages, a specialized font (for example,
-[NotoSansSC][noto] for simplified Chinese) can be used.
+gofpdf supports UTF-8 TrueType fonts and "right-to-left" languages. **Thai font families are embedded** in the package, ready to use with zero configuration. For other languages, specialized fonts like [NotoSansSC][noto] for simplified Chinese can be easily added.
 
 Also, support is provided to automatically translate UTF-8 runes to code page
 encodings for languages that have fewer than 256 glyphs.
+
+### Font Features
+
+* **Embedded fonts** - Thai fonts bundled with binary, no external files needed
+* **Auto-loading** - Fonts load automatically on first `SetFont()` call
+* **Subfolder search** - Organize fonts by family in subdirectories
+* **Multiple formats** - TTF, OTF supported directly (no preprocessing)
+* **Thai families** - Kanit, Sarabun, Prompt, Tahoma, NotoSansThai, and more
+
+See [Font Documentation](fonts_reference.md) for complete guide.
 
 ## Installation
 
 To install the package on your system, run
 
 ```shell
-go get github.com/phpdave11/gofpdf
+go get github.com/looksocial/gofpdf
 ```
 
 Later, to receive updates, run
 
 ```shell
-go get -u -v github.com/phpdave11/gofpdf/...
+go get -u -v github.com/looksocial/gofpdf/...
 ```
 
 ## Quick Start
+
+### Basic PDF
 
 The following Go code generates a simple PDF file.
 
@@ -68,8 +79,32 @@ pdf.Cell(40, 10, "Hello, world")
 err := pdf.OutputFileAndClose("hello.pdf")
 ```
 
+### Quick Start with Thai Fonts
+
+Use embedded fonts for Thai text with zero configuration:
+
+```go
+pdf := gofpdf.New("P", "mm", "A4", "")
+pdf.UseEmbeddedFonts()  // Enable embedded fonts
+pdf.AddPage()
+
+pdf.SetFont("Kanit", "B", 16)
+pdf.Cell(0, 10, "สวัสดีครับ - Hello in Thai")
+pdf.Ln(10)
+
+pdf.SetFont("Sarabun", "", 14)
+pdf.Cell(0, 10, "Mixed: Hello สวัสดี World")
+
+err := pdf.OutputFileAndClose("thai.pdf")
+```
+
 See the functions in the [fpdf_test.go][fpdf-test] file (shown as examples in
 this documentation) for more advanced PDF examples.
+
+For font usage, see:
+- [Font Quick Reference](fonts_quickref.md) - One-page cheat sheet
+- [Font Reference Guide](fonts_reference.md) - Complete API documentation
+- [Lesson 05: Fonts](lessons/05_fonts_utf8.md) - Step-by-step tutorial
 
 ## Errors
 
@@ -243,28 +278,28 @@ for file attachments and annotations.
 [badge-github]: https://img.shields.io/badge/project-Git_Hub-blue.svg
 [badge-mit]: https://img.shields.io/badge/license-MIT-blue.svg
 [badge-no-maintain]: http://unmaintained.tech/badge.svg
-[badge-report]: https://goreportcard.com/badge/github.com/phpdave11/gofpdf
+[badge-report]: https://goreportcard.com/badge/github.com/looksocial/gofpdf
 [badge-status]: https://travis-ci.org/phpdave11/gofpdf.svg?branch=master
 [coverage]: https://blog.golang.org/cover
 [dfont]: http://dejavu-fonts.org/
 [draw2d-site]: https://github.com/llgcode/draw2d
 [effective-go]: https://golang.org/doc/effective_go.html 
 [fpdf-site]: http://www.fpdf.org/
-[fpdf-test]: https://github.com/phpdave11/gofpdf/blob/master/fpdf_test.go
+[fpdf-test]: https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go
 [gfont]: https://fonts.google.com/
-[github]: https://github.com/phpdave11/gofpdf
-[godoc]: https://godoc.org/github.com/phpdave11/gofpdf
+[github]: https://github.com/looksocial/gofpdf
+[godoc]: https://godoc.org/github.com/looksocial/gofpdf
 [gofpdf-fork]: https://techgaun.github.io/active-forks/index.html#phpdave11/gofpdf
-[issue109]: https://github.com/phpdave11/gofpdf/issues/109
+[issue109]: https://github.com/looksocial/gofpdf/issues/109
 [jung]: https://github.com/phpdave11/
-[last-commit]: https://github.com/phpdave11/gofpdf/commit/603f56990463f011cb1dbb64ef7f872c1adc009a
+[last-commit]: https://github.com/looksocial/gofpdf/commit/603f56990463f011cb1dbb64ef7f872c1adc009a
 [license]: https://raw.githubusercontent.com/phpdave11/gofpdf/master/LICENSE
 [lint]: https://github.com/golang/lint
-[logo]: https://github.com/phpdave11/gofpdf/raw/master/image/logo_gofpdf.jpg?raw=true
+[logo]: https://github.com/looksocial/gofpdf/raw/master/image/logo_gofpdf.jpg?raw=true
 [noto]: https://github.com/jsntn/webfonts/blob/master/NotoSansSC-Regular.ttf
 [pr]: https://help.github.com/articles/using-pull-requests/
-[report]: https://goreportcard.com/report/github.com/phpdave11/gofpdf
+[report]: https://goreportcard.com/report/github.com/looksocial/gofpdf
 [status]: https://travis-ci.org/phpdave11/gofpdf
-[test]: https://github.com/phpdave11/gofpdf/blob/master/fpdf_test.go
+[test]: https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go
 [unmaintained]: http://unmaintained.tech/
 [vet]: https://golang.org/cmd/vet/

@@ -551,9 +551,10 @@ func (f *Fpdf) SetDisplayMode(zoomStr, layoutStr string) {
 	}
 }
 
-// SetDefaultCompression controls the default setting of the internal
-// compression flag. See SetCompression() for more details. Compression is on
-// by default.
+// SetDefaultCompression sets the default compression state for all new Fpdf
+// instances created after this call. When compress is true, PDF output will
+// be compressed, reducing file size. The default state is true (compression enabled).
+// See SetCompression() for more details.
 func SetDefaultCompression(compress bool) {
 	gl.noCompress = !compress
 }
@@ -1682,22 +1683,43 @@ func (f *Fpdf) addFont(familyStr, styleStr, fileStr string, isUTF8 bool) {
 		if ok {
 			return
 		}
-		var ttfStat os.FileInfo
+		var originalSize int64
 		var err error
-		fileStr = path.Join(f.fontpath, fileStr)
-		ttfStat, err = os.Stat(fileStr)
-		if err != nil {
-			f.SetError(err)
-			return
-		}
-		originalSize := ttfStat.Size()
-		Type := "UTF8"
 		var utf8Bytes []byte
-		utf8Bytes, err = ioutil.ReadFile(fileStr)
-		if err != nil {
-			f.SetError(err)
-			return
+
+		// Try FontLoader first (for embedded fonts), then fall back to file system
+		if f.fontLoader != nil {
+			// Don't join with fontpath for FontLoader - it handles its own paths
+			reader, err := f.fontLoader.Open(fileStr)
+			if err == nil {
+				utf8Bytes, err = ioutil.ReadAll(reader)
+				if closer, ok := reader.(io.Closer); ok {
+					closer.Close()
+				}
+				if err == nil {
+					originalSize = int64(len(utf8Bytes))
+				}
+			}
 		}
+
+		// If FontLoader failed or not set, try file system
+		if utf8Bytes == nil {
+			var ttfStat os.FileInfo
+			fileStr = path.Join(f.fontpath, fileStr)
+			ttfStat, err = os.Stat(fileStr)
+			if err != nil {
+				f.SetError(err)
+				return
+			}
+			originalSize = ttfStat.Size()
+			utf8Bytes, err = ioutil.ReadFile(fileStr)
+			if err != nil {
+				f.SetError(err)
+				return
+			}
+		}
+
+		Type := "UTF8"
 		reader := fileReader{readerPosition: 0, array: utf8Bytes}
 		utf8File := newUTF8Font(&reader)
 		err = utf8File.parseFile()
@@ -2086,8 +2108,13 @@ func (f *Fpdf) SetFont(familyStr, styleStr string, size float64) {
 				}
 			}
 		} else {
-			f.err = fmt.Errorf("undefined font: %s %s", familyStr, styleStr)
-			return
+			// Attempt to auto-load a custom font from the current font path
+			if !f.tryAutoAddFont(familyStr, styleStr) {
+				f.err = fmt.Errorf("undefined font: %s %s", familyStr, styleStr)
+				return
+			}
+			// refresh fontKey after potential auto-add
+			fontKey = familyStr + styleStr
 		}
 	}
 	// Select it
@@ -2105,6 +2132,112 @@ func (f *Fpdf) SetFont(familyStr, styleStr string, size float64) {
 		f.outf("BT /F%s %.2f Tf ET", f.currentFont.i, f.fontSizePt)
 	}
 	return
+}
+
+// tryAutoAddFont attempts to register a non-core font on-the-fly from files
+// located in the configured font directory. It supports both UTF-8 TTF/OTF
+// (via AddUTF8Font) and JSON/Z metric files (via AddFont). Returns true on
+// success.
+func (f *Fpdf) tryAutoAddFont(familyStr, styleStr string) bool {
+	if f.err != nil {
+		return false
+	}
+
+	// First try embedded fonts if a FontLoader is set
+	if f.fontLoader != nil {
+		if f.tryLoadEmbeddedFont(familyStr, styleStr) {
+			return true
+		}
+	}
+
+	// Prepare candidate filenames to probe in f.fontpath.
+	// We try common patterns for both TTF/OTF and JSON metric files.
+	// For style names, we cover regular (""), bold ("B"), italic ("I"), and bold-italic ("BI").
+	styleLower := strings.ToLower(styleStr)
+
+	// Map style to human-readable suffixes that are common in filenames.
+	var styleSuffixes []string
+	switch styleStr {
+	case "B":
+		styleSuffixes = []string{"-Bold", "Bold", "Bd", "B"}
+	case "I":
+		styleSuffixes = []string{"-Italic", "Italic", "It", "I", "-Oblique", "Oblique"}
+	case "BI":
+		styleSuffixes = []string{"-BoldItalic", "BoldItalic", "BI", "-Bold-Italic", "Bold-Italic"}
+	default:
+		styleSuffixes = []string{""}
+	}
+
+	// Build candidate lists for TTF/OTF (Unicode) and JSON metric files.
+	var ttfCandidates []string
+	var jsonCandidates []string
+
+	// Always try plain family first (e.g., Tahoma.ttf / Tahoma.json)
+	ttfCandidates = append(ttfCandidates, familyStr+".ttf", familyStr+".otf")
+	jsonCandidates = append(jsonCandidates, familyStr+".json")
+
+	// For regular style, also try explicit Regular filenames
+	if styleStr == "" {
+		ttfCandidates = append(ttfCandidates, familyStr+"-Regular.ttf", familyStr+"Regular.ttf")
+		jsonCandidates = append(jsonCandidates, familyStr+"-Regular.json", familyStr+"Regular.json")
+	}
+
+	// Try style-specific file names using common suffix forms
+	for _, suf := range styleSuffixes {
+		base := familyStr + suf
+		ttfCandidates = append(ttfCandidates, base+".ttf", base+".otf")
+		jsonCandidates = append(jsonCandidates, base+".json")
+	}
+
+	// Also try the package's default concatenation rule used when fileStr is empty
+	// (e.g., family + strings.ToLower(style) + ext), but we probe explicitly.
+	if styleLower != "" {
+		ttfCandidates = append(ttfCandidates, familyStr+styleLower+".ttf")
+		jsonCandidates = append(jsonCandidates, familyStr+styleLower+".json")
+	}
+
+	// Consider both root of fontpath and a subfolder named after the family
+	dirPrefixes := []string{"", familyStr + string(os.PathSeparator)}
+
+	// Probe for a TTF/OTF first to prefer full UTF-8 coverage.
+	for _, cand := range ttfCandidates {
+		for _, prefix := range dirPrefixes {
+			rel := cand
+			if prefix != "" {
+				rel = prefix + cand
+			}
+			full := path.Join(f.fontpath, rel)
+			if _, err := os.Stat(full); err == nil {
+				f.AddUTF8Font(familyStr, styleStr, rel)
+				if f.err == nil {
+					if _, ok := f.fonts[getFontKey(familyStr, styleStr)]; ok {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	// Fallback to JSON metric files if present.
+	for _, cand := range jsonCandidates {
+		for _, prefix := range dirPrefixes {
+			rel := cand
+			if prefix != "" {
+				rel = prefix + cand
+			}
+			full := path.Join(f.fontpath, rel)
+			if _, err := os.Stat(full); err == nil {
+				f.AddFont(familyStr, styleStr, rel)
+				if f.err == nil {
+					if _, ok := f.fonts[getFontKey(familyStr, styleStr)]; ok {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return false
 }
 
 // SetFontStyle sets the style of the current font. See also SetFont()
@@ -2532,6 +2665,10 @@ func (f *Fpdf) SplitLines(txt []byte, w float64) [][]byte {
 	// Function contributed by Bruno Michel
 	lines := [][]byte{}
 	cw := f.currentFont.Cw
+	// Add bounds check to prevent index out of range
+	if len(cw) == 0 {
+		return lines
+	}
 	wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
 	s := bytes.Replace(txt, []byte("\r"), []byte{}, -1)
 	nb := len(s)
@@ -2545,7 +2682,14 @@ func (f *Fpdf) SplitLines(txt []byte, w float64) [][]byte {
 	l := 0
 	for i < nb {
 		c := s[i]
-		l += cw[c]
+		// Add bounds check for character width access
+		if int(c) < len(cw) {
+			l += cw[c]
+		} else if f.currentFont.Desc.MissingWidth != 0 {
+			l += f.currentFont.Desc.MissingWidth
+		} else {
+			l += 500 // Default fallback width
+		}
 		if c == ' ' || c == '\t' || c == '\n' {
 			sep = i
 		}
@@ -2925,7 +3069,7 @@ func (f *Fpdf) WriteLinkID(h float64, displayStr string, linkID int) {
 //
 // width indicates the width of the box the text will be drawn in. This is in
 // the unit of measure specified in New(). If it is set to 0, the bounding box
-//of the page will be taken (pageWidth - leftMargin - rightMargin).
+// of the page will be taken (pageWidth - leftMargin - rightMargin).
 //
 // lineHeight indicates the line height in the unit of measure specified in
 // New().
@@ -3149,8 +3293,14 @@ func (f *Fpdf) RegisterImageReader(imgName, tp string, r io.Reader) (info *Image
 // AllowNegativePosition can be set to true in order to prevent the default
 // coercion of negative x values to the current x position.
 type ImageOptions struct {
-	ImageType             string
-	ReadDpi               bool
+	// ImageType specifies the image format type (e.g., "JPG", "PNG", "GIF").
+	// This should be specified when using RegisterImageOptionsReader().
+	ImageType string
+	// ReadDpi indicates whether to read DPI information from the image file.
+	// For PNG images, this will automatically extract DPI metadata if available.
+	ReadDpi bool
+	// AllowNegativePosition, when true, prevents automatic coercion of negative
+	// x coordinate values to the current x position.
 	AllowNegativePosition bool
 }
 
@@ -3795,9 +3945,10 @@ func (f *Fpdf) outf(fmtStr string, args ...interface{}) {
 	f.out(sprintf(fmtStr, args...))
 }
 
-// SetDefaultCatalogSort sets the default value of the catalog sort flag that
-// will be used when initializing a new Fpdf instance. See SetCatalogSort() for
-// more details.
+// SetDefaultCatalogSort sets the default catalog sort flag for all new Fpdf
+// instances created after this call. When flag is true, the PDF catalog will
+// be sorted for consistent output ordering. This is useful for reproducible
+// PDF generation. See SetCatalogSort() for more details.
 func SetDefaultCatalogSort(flag bool) {
 	gl.catalogSort = flag
 }
@@ -3809,16 +3960,18 @@ func (f *Fpdf) SetCatalogSort(flag bool) {
 	f.catalogSort = flag
 }
 
-// SetDefaultCreationDate sets the default value of the document creation date
-// that will be used when initializing a new Fpdf instance. See
-// SetCreationDate() for more details.
+// SetDefaultCreationDate sets the default creation date for all new Fpdf
+// instances created after this call. This date will be used in the PDF
+// metadata unless overridden by SetCreationDate(). See SetCreationDate()
+// for more details.
 func SetDefaultCreationDate(tm time.Time) {
 	gl.creationDate = tm
 }
 
-// SetDefaultModificationDate sets the default value of the document modification date
-// that will be used when initializing a new Fpdf instance. See
-// SetCreationDate() for more details.
+// SetDefaultModificationDate sets the default modification date for all new
+// Fpdf instances created after this call. This date will be used in the PDF
+// metadata unless overridden by SetModificationDate(). See SetModificationDate()
+// for more details.
 func SetDefaultModificationDate(tm time.Time) {
 	gl.modDate = tm
 }

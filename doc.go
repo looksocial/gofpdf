@@ -2,9 +2,16 @@
 Package gofpdf implements a PDF document generator with high level
 support for text, drawing and images.
 
+Note for Contributors and Users: This package (gofpdf) is a fork of gofpdf,
+renamed from gofpdf to gofpdf with added Thai font support. All the original
+functionality of gofpdf is preserved, and this fork includes embedded Thai fonts
+and enhanced UTF-8 support for Thai language text rendering.
 
-Features
+Original Projects:
+- Original gofpdf by Kurt Jung: github.com/jung-kurt/gofpdf
+- gofpdf maintained by Dave Barnes: github.com/phpdave11/gofpdf
 
+# Features
 
 -   UTF-8 support
 
@@ -45,43 +52,44 @@ Features
 -   Import PDFs as templates
 
 gofpdf has no dependencies other than the Go standard library. All tests
-pass on Linux, Mac and Windows platforms.
+pass on Linux, Mac and Windows platforms. Thai fonts are embedded in the
+package, requiring no external dependencies.
 
-gofpdf supports UTF-8 TrueType fonts and “right-to-left” languages. Note
-that Chinese, Japanese, and Korean characters may not be included in
-many general purpose fonts. For these languages, a specialized font (for
-example, NotoSansSC for simplified Chinese) can be used.
+gofpdf supports UTF-8 TrueType fonts and "right-to-left" languages. This
+fork includes extensive Thai font support with 18+ embedded Thai font families
+(such as Kanit, Sarabun, Prompt, Taviraj, and many more) that can be used
+directly without additional setup. Note that Chinese, Japanese, and Korean
+characters may not be included in many general purpose fonts. For these
+languages, a specialized font (for example, NotoSansSC for simplified Chinese)
+can be used.
 
 Also, support is provided to automatically translate UTF-8 runes to code
 page encodings for languages that have fewer than 256 glyphs.
 
-
-Installation
+# Installation
 
 To install the package on your system, run
 
-    go get github.com/phpdave11/gofpdf
+	go get github.com/looksocial/gofpdf
 
 Later, to receive updates, run
 
-    go get -u -v github.com/phpdave11/gofpdf/...
+	go get -u -v github.com/looksocial/gofpdf/...
 
-
-Quick Start
+# Quick Start
 
 The following Go code generates a simple PDF file.
 
-    pdf := gofpdf.New("P", "mm", "A4", "")
-    pdf.AddPage()
-    pdf.SetFont("Arial", "B", 16)
-    pdf.Cell(40, 10, "Hello, world")
-    err := pdf.OutputFileAndClose("hello.pdf")
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(40, 10, "Hello, world")
+	err := pdf.OutputFileAndClose("hello.pdf")
 
 See the functions in the fpdf_test.go file (shown as examples in this
 documentation) for more advanced PDF examples.
 
-
-Errors
+# Errors
 
 If an error occurs in an Fpdf method, an internal error field is set.
 After this occurs, Fpdf method calls typically return without performing
@@ -96,8 +104,7 @@ during the life cycle of the Fpdf instance, the error state can be
 determined with a call to Ok() or Err(). The error itself can be
 retrieved with a call to Error().
 
-
-Conversion Notes
+# Conversion Notes
 
 This package is a relatively straightforward translation from the
 original FPDF library written in PHP (despite the caveat in the
@@ -117,8 +124,7 @@ cases additional methods have been exported to provide similar
 functionality. Font definition files are produced in JSON rather than
 PHP.
 
-
-Example PDFs
+# Example PDFs
 
 A side effect of running go test ./... is the production of a number of
 example PDFs. These can be found in the gofpdf/pdf directory after the
@@ -145,8 +151,7 @@ timestamps must be the same. To do this, the methods SetCatalogSort()
 and SetCreationDate() need to be called for both files. This is done
 automatically for all examples.
 
-
-Nonstandard Fonts
+# Nonstandard Fonts
 
 Nothing special is required to use the standard PDF fonts (courier,
 helvetica, times, zapfdingbats) in your documents other than calling
@@ -165,32 +170,29 @@ and run “go build”. This will produce a standalone executable named
 makefont. Select the appropriate encoding file from the font
 subdirectory and run the command as in the following example.
 
-    ./makefont --embed --enc=../font/cp1252.map --dst=../font ../font/calligra.ttf
+	./makefont --embed --enc=../font/cp1252.map --dst=../font ../font/calligra.ttf
 
 In your PDF generation code, call AddFont() to load the font and, as
 with the standard fonts, SetFont() to begin using it. Most examples,
 including the package example, demonstrate this method. Good sources of
 free, open-source fonts include Google Fonts and DejaVu Fonts.
 
-
-Related Packages
+# Related Packages
 
 The draw2d package is a two dimensional vector graphics library that can
 generate output in different forms. It uses gofpdf for its document
 production mode.
 
+# Contributing Changes
 
-Contributing Changes
-
-gofpdf is a global community effort and you are invited to make it even
-better. If you have implemented a new feature or corrected a problem,
-please consider contributing your change to the project. A contribution
-that does not directly pertain to the core functionality of gofpdf
-should be placed in its own directory directly beneath the contrib
-directory.
+gofpdf is a fork of gofpdf and welcomes contributions, especially those
+related to Thai language support and font enhancements. If you have
+implemented a new feature or corrected a problem, please consider
+contributing your change to the project. A contribution that does not
+directly pertain to the core functionality of gofpdf should be placed
+in its own directory directly beneath the contrib directory.
 
 Here are guidelines for making submissions. Your change should
-
 
 -   be compatible with the MIT License
 
@@ -207,18 +209,25 @@ go vet . should not generate any warnings
 
 Pull requests are the preferred means of accepting your changes.
 
+# License
 
-License
+gofpdf is released under the MIT License, inheriting the license from
+the original gofpdf project. It is copyrighted by Kurt Jung and the
+contributors acknowledged below, as well as the gofpdf maintainers.
 
-gofpdf is released under the MIT License. It is copyrighted by Kurt Jung
-and the contributors acknowledged below.
+# References
 
+This package is based on the gofpdf project. For reference to the original implementations:
 
-Acknowledgments
+- Original gofpdf by Kurt Jung: github.com/jung-kurt/gofpdf
+- gofpdf maintained by Dave Barnes: github.com/phpdave11/gofpdf
 
-This package’s code and documentation are closely derived from the FPDF
-library created by Olivier Plathey, and a number of font and image
-resources are copied directly from it. Bruno Michel has provided
+# Acknowledgments
+
+This package is a fork of gofpdf originally written by Kurt Jung. The
+code and documentation are closely derived from the FPDF library created
+by Olivier Plathey, and a number of font and image resources are copied
+directly from it. Bruno Michel has provided
 valuable assistance with the code. Drawing support is adapted from the
 FPDF geometric figures script by David Hernández Sanz. Transparency
 support is adapted from the FPDF transparency script by Martin Hall-May.
@@ -262,9 +271,7 @@ functionality and optimized image storage. Benoit KUGLER contributed
 support for rectangles with corners of unequal radius, modification
 times, and for file attachments and annotations.
 
-
-Roadmap
-
+# Roadmap
 
 -   Remove all legacy code page font support; use UTF-8 exclusively
 

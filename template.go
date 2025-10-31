@@ -113,14 +113,23 @@ func (f *Fpdf) UseTemplateScaled(t Template, corner PointType, size SizeType) {
 
 // Template is an object that can be written to, then used and re-used any number of times within a document.
 type Template interface {
+	// ID returns a unique identifier for this template.
 	ID() string
+	// Size returns the corner position and dimensions of the template.
 	Size() (PointType, SizeType)
+	// Bytes returns the raw PDF content bytes for this template.
 	Bytes() []byte
+	// Images returns a map of image names to their image info structures.
 	Images() map[string]*ImageInfoType
+	// Templates returns a list of all templates embedded within this template.
 	Templates() []Template
+	// NumPages returns the number of pages in the template.
 	NumPages() int
+	// FromPage returns a template containing only the specified page (1-based index).
 	FromPage(int) (Template, error)
+	// FromPages returns a slice of templates, one for each page.
 	FromPages() []Template
+	// Serialize encodes the template to a byte slice for storage or transmission.
 	Serialize() ([]byte, error)
 	gob.GobDecoder
 	gob.GobEncoder

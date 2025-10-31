@@ -32,18 +32,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/phpdave11/gofpdf"
-	"github.com/phpdave11/gofpdf/internal/example"
-	"github.com/phpdave11/gofpdf/internal/files"
+	gofpdf "github.com/looksocial/gofpdf"
+	"github.com/looksocial/gofpdf/internal/example"
+	"github.com/looksocial/gofpdf/internal/files"
 )
 
 func init() {
+	// Ensure the PDF directory exists before attempting cleanup
+	_ = os.MkdirAll(example.PdfDir(), 0755)
 	cleanup()
 }
 
 func cleanup() {
 	filepath.Walk(example.PdfDir(),
 		func(path string, info os.FileInfo, err error) (reterr error) {
+			if err != nil || info == nil {
+				return nil
+			}
 			if info.Mode().IsRegular() {
 				dir, _ := filepath.Split(path)
 				if "reference" != filepath.Base(dir) {
@@ -1568,7 +1573,7 @@ func ExampleFpdf_CellFormat_align() {
 				pdf.CellFormat(170, 257, rec.txt, borderStr, 0, rec.align, false, 0, linkStr)
 				borderStr = ""
 			}
-			linkStr = "https://github.com/phpdave11/gofpdf"
+			linkStr = "https://github.com/looksocial/gofpdf"
 		}
 	}
 	pdf := gofpdf.New("P", "mm", "A4", "") // A4 210.0 x 297.0
@@ -1776,7 +1781,7 @@ func ExampleFpdf_RegisterImageReader() {
 		wd       = 210
 		ht       = 297
 		fontSize = 15
-		urlStr   = "https://github.com/phpdave11/gofpdf/blob/master/image/gofpdf.png?raw=true"
+		urlStr   = "https://github.com/looksocial/gofpdf/blob/master/image/gofpdf.png?raw=true"
 		msgStr   = `Images from the web can be easily embedded when a PDF document is generated.`
 	)
 
