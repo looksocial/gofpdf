@@ -3,11 +3,11 @@ package barcode_test
 import (
 	"testing"
 
+	"github.com/looksocial/gofpdf"
+	"github.com/looksocial/gofpdf/contrib/barcode"
+	"github.com/looksocial/gofpdf/internal/example"
 	"github.com/boombuler/barcode/code128"
 	"github.com/boombuler/barcode/qr"
-	"github.com/phpdave11/gofpdf"
-	"github.com/phpdave11/gofpdf/contrib/barcode"
-	"github.com/phpdave11/gofpdf/internal/example"
 )
 
 func createPdf() (pdf *gofpdf.Fpdf) {

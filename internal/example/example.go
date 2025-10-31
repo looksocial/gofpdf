@@ -24,13 +24,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/phpdave11/gofpdf"
+	"github.com/looksocial/gofpdf"
 )
 
 var gofpdfDir string
 
 func init() {
 	setRoot()
+	// Ensure output directories exist to avoid test failures on fresh clones
+	_ = os.MkdirAll(PdfDir(), 0755)
+	_ = os.MkdirAll(filepath.Join(PdfDir(), "reference"), 0755)
 	gofpdf.SetDefaultCompression(false)
 	gofpdf.SetDefaultCatalogSort(true)
 	gofpdf.SetDefaultCreationDate(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC))
@@ -44,7 +47,8 @@ func setRoot() {
 	if err == nil {
 		gofpdfDir = ""
 		list := strings.Split(filepath.ToSlash(wdStr), "/")
-		for j := len(list) - 1; j >= 0 && list[j] != "gofpdf"; j-- {
+		// Check for either "gofpdf" or "gofpdf" for backward compatibility
+		for j := len(list) - 1; j >= 0 && list[j] != "gofpdf" && list[j] != "gofpdf"; j-- {
 			gofpdfDir = filepath.Join(gofpdfDir, "..")
 		}
 	} else {
