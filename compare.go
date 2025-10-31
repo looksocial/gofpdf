@@ -75,6 +75,8 @@ func writeBytes(leadStr string, startPos int, sl []byte) {
 	fmt.Printf("|\n")
 }
 
+// checkBytes เปรียบเทียบสอง slice ของไบต์เริ่มจากตำแหน่ง pos และคืนค่า true เมื่อทั้งสองเหมือนกัน.
+// ถ้าต่างกันและ printDiff เป็น true จะพิมพ์การแสดงผลแบบ hex/ASCII ของทั้งสอง slice โดยเรียก writeBytes (sl1 นำหน้าด้วย "<", sl2 นำหน้าด้วย ">") และคืนค่า false เมื่อแตกต่างกัน.
 func checkBytes(pos int, sl1, sl2 []byte, printDiff bool) (eq bool) {
 	eq = bytes.Equal(sl1, sl2)
 	if !eq && printDiff {
@@ -86,7 +88,10 @@ func checkBytes(pos int, sl1, sl2 []byte, printDiff bool) (eq bool) {
 
 // CompareBytes compares the bytes referred to by sl1 with those referred to by
 // sl2. Nil is returned if the buffers are equal, otherwise an error. If printDiff
-// is true, any differences will be printed to standard output in a human-readable format.
+// CompareBytes เปรียบเทียบเนื้อหาของสองสไลซ์ไบต์และคืนค่าความแตกต่างถ้ามี
+// มันเปรียบเทียบไบต์จนถึงความยาวของสไลซ์ที่สั้นกว่าเท่านั้น และหากพารามิเตอร์ printDiff เป็น true
+// จะแสดงความแตกต่างเป็นรูปแบบอ่านได้บน standard output ในกรณีที่พบความแตกต่าง
+// หากมีความแตกต่างจะคืนค่า error ที่บอกว่าเอกสารแตกต่างกัน มิฉะนั้นจะคืนค่า nil
 func CompareBytes(sl1, sl2 []byte, printDiff bool) (err error) {
 	var posStart, posEnd, len1, len2, length int
 	var diffs bool
@@ -115,7 +120,7 @@ func CompareBytes(sl1, sl2 []byte, printDiff bool) (err error) {
 
 // ComparePDFs reads and compares the full contents of the two specified
 // readers byte-for-byte. Nil is returned if the contents are equal, otherwise
-// an error. If printDiff is true, any differences will be printed to standard output.
+// คืนค่า nil เมื่อเนื้อหาเหมือนกัน; คืนค่า error เมื่อพบความแตกต่างหรือเกิดข้อผิดพลาดระหว่างการอ่านข้อมูลจากตัวอ่านใดตัวหนึ่ง
 func ComparePDFs(rdr1, rdr2 io.Reader, printDiff bool) (err error) {
 	var b1, b2 *bytes.Buffer
 	_, err = b1.ReadFrom(rdr1)
@@ -131,7 +136,14 @@ func ComparePDFs(rdr1, rdr2 io.Reader, printDiff bool) (err error) {
 // ComparePDFFiles reads and compares the full contents of the two specified
 // files byte-for-byte. Nil is returned if the file contents are equal, or if
 // the second file is missing, otherwise an error. If printDiff is true, any
-// differences will be printed to standard output.
+// ComparePDFFiles อ่านสองไฟล์ PDF ที่ระบุโดยเส้นทางและเปรียบเทียบเนื้อหาไบต์ของไฟล์ทั้งสอง
+// หาก printDiff เป็น true จะแสดงความแตกต่างเป็นรูปแบบที่อ่านได้บนมาตรฐานเอาต์พุต
+// จะคืนค่า error หากการอ่านไฟล์แรกล้มเหลว หรือถ้าเนื้อหาไฟล์ทั้งสองแตกต่างกัน
+// หากการอ่านไฟล์ที่สองล้มเหลว (เช่น ไฟล์ที่สองขาดหาย) จะถือว่าไม่มีข้อผิดพลาดและคืนค่า nil
+// พารามิเตอร์:
+//   - file1Str: เส้นทางไปยังไฟล์ PDF แรก
+//   - file2Str: เส้นทางไปยังไฟล์ PDF ที่สอง
+//   - printDiff: ถ้าเป็น true จะแสดงความแตกต่างที่พบบนมาตรฐานเอาต์พุต
 func ComparePDFFiles(file1Str, file2Str string, printDiff bool) (err error) {
 	var sl1, sl2 []byte
 	sl1, err = ioutil.ReadFile(file1Str)

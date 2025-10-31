@@ -554,7 +554,8 @@ func (f *Fpdf) SetDisplayMode(zoomStr, layoutStr string) {
 // SetDefaultCompression sets the default compression state for all new Fpdf
 // instances created after this call. When compress is true, PDF output will
 // be compressed, reducing file size. The default state is true (compression enabled).
-// See SetCompression() for more details.
+// SetDefaultCompression กำหนดค่าเริ่มต้นระดับแพ็กเกจว่าควรเปิดการบีบอัดสตรีม PDF สำหรับเอกสารใหม่หรือไม่.
+// หาก compress เป็น true จะเปิดการบีบอัด; หากเป็น false จะปิดการบีบอัด.
 func SetDefaultCompression(compress bool) {
 	gl.noCompress = !compress
 }
@@ -3948,7 +3949,8 @@ func (f *Fpdf) outf(fmtStr string, args ...interface{}) {
 // SetDefaultCatalogSort sets the default catalog sort flag for all new Fpdf
 // instances created after this call. When flag is true, the PDF catalog will
 // be sorted for consistent output ordering. This is useful for reproducible
-// PDF generation. See SetCatalogSort() for more details.
+// SetDefaultCatalogSort กำหนดค่าดีฟอลต์ว่ารายการใน Catalog ของเอกสาร PDF ใหม่จะถูกจัดเรียงหรือไม่.
+// ถ้า flag เป็น true จะเปิดการจัดเรียงรายการใน Catalog ตามชื่อตัวระบุ; ถ้าเป็น false จะปิดการจัดเรียง (ค่าจะใช้สำหรับอินสแตนซ์ใหม่).
 func SetDefaultCatalogSort(flag bool) {
 	gl.catalogSort = flag
 }
@@ -3963,7 +3965,8 @@ func (f *Fpdf) SetCatalogSort(flag bool) {
 // SetDefaultCreationDate sets the default creation date for all new Fpdf
 // instances created after this call. This date will be used in the PDF
 // metadata unless overridden by SetCreationDate(). See SetCreationDate()
-// for more details.
+// SetDefaultCreationDate ตั้งค่าวันที่สร้างเริ่มต้นที่จะใช้เป็นค่าเริ่มต้นสำหรับอินสแตนซ์ใหม่ของเอกสาร PDF.
+// หากส่งค่าเป็นค่าเวลาเริ่มต้น (time.Time{}) จะไม่มีการบังคับวันเวลานี้ และระบบจะใช้เวลาปัจจุบันเมื่อสร้างข้อมูลเมตาของเอกสาร.
 func SetDefaultCreationDate(tm time.Time) {
 	gl.creationDate = tm
 }
@@ -3971,7 +3974,8 @@ func SetDefaultCreationDate(tm time.Time) {
 // SetDefaultModificationDate sets the default modification date for all new
 // Fpdf instances created after this call. This date will be used in the PDF
 // metadata unless overridden by SetModificationDate(). See SetModificationDate()
-// for more details.
+// SetDefaultModificationDate กำหนดค่าวันที่แก้ไขเริ่มต้นที่ใช้เป็นค่าเริ่มต้นสำหรับอินสแตนซ์ใหม่ของเอกสาร PDF.
+// ค่าจะถูกเก็บในตัวแปรระดับแพ็กเกจ (gl.modDate) และนำมาใช้เมื่อสร้าง Fpdf ใหม่ในอนาคต.
 func SetDefaultModificationDate(tm time.Time) {
 	gl.modDate = tm
 }

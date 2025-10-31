@@ -1139,6 +1139,7 @@ func keySortInt(s map[int]int) []int {
 	return keys
 }
 
+// keySortArrayRangeMap คืน slice ของคีย์จากแผนที่ int->[]int โดยเรียงจากค่าน้อยไปมาก.
 func keySortArrayRangeMap(s map[int][]int) []int {
 	keys := make([]int, len(s))
 	i := 0
@@ -1154,7 +1155,9 @@ func keySortArrayRangeMap(s map[int][]int) []int {
 // only of the runes included in cutset. The rune glyphs are copied from the
 // input font buffer. This is useful for creating smaller font subsets containing
 // only the characters needed for a specific document. This function is
-// demonstrated in ExampleUTF8CutFont().
+// UTF8CutFont สร้างฟอนต์ย่อยจากบัฟเฟอร์ฟอนต์อินพุตโดยเก็บเฉพาะรันที่ระบุใน cutset.
+// inBuf คือบัฟเฟอร์ไบนารี่ของฟอนต์ต้นฉบับ, cutset คือสตริงที่ประกอบด้วยรันที่ต้องการเก็บ.
+// คืนบัฟเฟอร์ไบนารี่ของฟอนต์ที่ตัดแล้ว (subset) สำหรับการเขียนออกหรือใช้งานต่อไป.
 func UTF8CutFont(inBuf []byte, cutset string) (outBuf []byte) {
 	f := newUTF8Font(&fileReader{readerPosition: 0, array: inBuf})
 	runes := map[int]int{}

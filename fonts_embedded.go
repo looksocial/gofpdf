@@ -21,7 +21,7 @@ func (e *EmbeddedFontLoader) Open(name string) (io.Reader, error) {
 	return e.fs.Open(name)
 }
 
-// NewEmbeddedFontLoader creates a FontLoader that reads from the embedded font directory
+// NewEmbeddedFontLoader สร้างและคืนค่า *EmbeddedFontLoader ที่อ่านไฟล์ฟอนต์จากตัวแปร embeddedFonts ของแพ็กเกจ ซึ่งใช้สำหรับโหลดฟอนต์ที่ฝังมาในไบนารีโปรแกรม.
 func NewEmbeddedFontLoader() *EmbeddedFontLoader {
 	return &EmbeddedFontLoader{fs: embeddedFonts}
 }
@@ -109,7 +109,9 @@ func (f *Fpdf) tryLoadEmbeddedFont(familyStr, styleStr string) bool {
 	return false
 }
 
-// GetEmbeddedFontFamilies returns a list of all available font families in the embedded fonts
+// GetEmbeddedFontFamilies สร้างรายการชื่อฟอนต์ที่มีอยู่จากไฟล์ฟอนต์ที่ฝังไว้ภายในแพ็กเกจ
+// สไลซ์ที่ส่งกลับประกอบด้วยชื่อครอบครัวฟอนต์ที่พบภายใต้โฟลเดอร์ "font/th" ของ embedded filesystem;
+// รายชื่อที่ได้ไม่มีการเรียงลำดับและไม่มีค่าซ้ำในผลลัพธ์.
 func GetEmbeddedFontFamilies() []string {
 	families := make(map[string]bool)
 

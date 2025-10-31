@@ -12,6 +12,9 @@ import (
 	gofpdf "github.com/looksocial/gofpdf"
 )
 
+// report พิมพ์ผลการสร้างหรือบีบอัดไฟล์ PDF ไปยังมาตรฐานเอาต์พุต.
+// ถ้า err เป็น nil จะตรวจสอบขนาดไฟล์และพิมพ์ "<file>: OK, size <size>" ถ้า os.Stat ล้มเหลวจะพิมพ์ "<file>: bad stat".
+// ถ้า err ไม่เป็น nil จะพิมพ์ "<file>: <err>".
 func report(fileStr string, err error) {
 	if err == nil {
 		var info os.FileInfo

@@ -29,6 +29,9 @@ import (
 
 var gofpdfDir string
 
+// init กำหนดค่าเริ่มต้นของแพ็กเกจ example.
+// มันเรียก setRoot เพื่อหาตำแหน่งรากของโครงการ, สร้างไดเรกทอรีเอาต์พุตและไดเรกทอรีอ้างอิงถ้ายังไม่มี (ละเว้นข้อผิดพลาด),
+// และตั้งค่าพฤติกรรมเริ่มต้นของ gofpdf ได้แก่ ปิดการบีบอัด เปิดการจัดเรียงแค็ตตาล็อก และตั้งวันที่สร้าง/แก้ไขเริ่มต้นเป็น 2000-01-01 UTC.
 func init() {
 	setRoot()
 	// Ensure output directories exist to avoid test failures on fresh clones
@@ -41,7 +44,8 @@ func init() {
 }
 
 // setRoot assigns the relative path to the gofpdfDir directory based on current working
-// directory
+// setRoot กำหนดตัวแปร gofpdfDir เป็นเส้นทางสัมพัทธ์ (ประกอบด้วย `..` ซ้ำ) ที่ต้องเดินขึ้นจาก current working directory จนถึงไดเรกทอรีชื่อ "gofpdf" เพื่อให้เส้นทางไปยังรากของโปรเจ็กต์ถูกต้อง.
+// ฟังก์ชันจะ panic หากไม่สามารถเรียกดู working directory ได้.
 func setRoot() {
 	wdStr, err := os.Getwd()
 	if err == nil {

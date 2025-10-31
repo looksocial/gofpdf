@@ -8,6 +8,8 @@ import (
 	"github.com/looksocial/gofpdf"
 )
 
+// errPrintf เขียนสตริงที่ฟอร์แมตไปยังมาตรฐานข้อผิดพลาด (stderr).
+// ใช้ fmt.Fprintf กับ os.Stderr โดยรับรูปแบบ fmtStr และอาร์กิวเมนต์ args.
 func errPrintf(fmtStr string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, fmtStr, args...)
 }
