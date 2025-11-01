@@ -47,8 +47,8 @@ func setRoot() {
 	if err == nil {
 		gofpdfDir = ""
 		list := strings.Split(filepath.ToSlash(wdStr), "/")
-		// Check for either "gofpdf" or "gofpdf" for backward compatibility
-		for j := len(list) - 1; j >= 0 && list[j] != "gofpdf" && list[j] != "gofpdf"; j-- {
+		// Check for either "gofpdf" for backward compatibility
+		for j := len(list) - 1; j >= 0 && list[j] != "gofpdf"; j-- {
 			gofpdfDir = filepath.Join(gofpdfDir, "..")
 		}
 	} else {

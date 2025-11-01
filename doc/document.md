@@ -32,6 +32,7 @@ text, drawing and images.
 * Barcodes
 * Charting facility
 * Import PDFs as templates
+* **Table Component** - Professional table generation with advanced features (see [Table Documentation](../table/README.md))
 
 gofpdf has no dependencies other than the Go standard library. All tests pass
 on Linux, Mac and Windows platforms.
