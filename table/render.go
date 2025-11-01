@@ -5,7 +5,16 @@ import (
 	"math"
 )
 
-// AddHeader renders table headers
+// AddHeader renders the table header row using the column definitions and HeaderStyle.
+//
+// The header row displays the Label from each Column definition. Header alignment
+// follows this priority: Column.HeaderAlign > HeaderStyle.Align > Column.Align.
+//
+// Headers support column spanning via Column.ColSpan. If StartX or StartY are set,
+// the header will be positioned at those coordinates; otherwise, it uses the current
+// PDF cursor position.
+//
+// After rendering, the PDF cursor moves to the next line, ready for data rows.
 func (t *Table) AddHeader() {
 	if len(t.Columns) == 0 {
 		return
@@ -63,7 +72,29 @@ func (t *Table) AddHeader() {
 	t.pdf.Ln(rowHeight)
 }
 
-// AddRow renders a data row with support for row spans and nested tables
+// AddRow renders a single data row with support for row/column spanning, nested tables,
+// text wrapping, and automatic page breaks.
+//
+// Parameters:
+//   - data: A map containing cell data keyed by column Key values. Special keys include:
+//     * "_align": map[string]string - Per-cell alignment overrides (e.g., {"name": "C"})
+//     * "_rowspan": map[string]int - Per-cell row span values (e.g., {"name": 3})
+//     * "_colspan": map[string]int - Per-cell column span values (e.g., {"name": 2})
+//     * "_nested_<key>": *Table - Nested table to render in the cell for column <key>
+//
+// The method handles:
+//   - Text wrapping for cells with content exceeding available width
+//   - Column spanning (merging cells horizontally)
+//   - Row spanning (merging cells vertically) with proper border continuation
+//   - Nested tables with automatic scaling and clipping to fit within cells
+//   - Automatic page breaks when there's insufficient space
+//   - Header repetition on new pages if RepeatHeader is enabled
+//   - Row height adjustment for wrapped text and nested tables
+//
+// Cell values are automatically converted to strings using valueToString.
+// Alignment priority: per-row alignment > DataStyle.Align > Column.Align.
+//
+// After rendering, the PDF cursor advances by the row height plus spacing.
 func (t *Table) AddRow(data map[string]interface{}) {
 	if len(t.Columns) == 0 {
 		return
@@ -584,8 +615,31 @@ func (t *Table) AddRow(data map[string]interface{}) {
 	t.pdf.Ln(baseRowHeight + t.Spacing)
 }
 
-// AddRows stores rows for later rendering (used for nested tables)
-// If you want to render immediately, use Render() instead
+// AddRows stores multiple rows for deferred rendering, primarily used for nested tables.
+//
+// Parameters:
+//   - data: A slice of row data maps to store for later rendering.
+//
+// Unlike AddRow which renders immediately, AddRows simply stores the data.
+// The stored rows can be retrieved and rendered later using Render() or by
+// accessing the nested table's storedRows field.
+//
+// This is typically used when creating nested tables, where you need to
+// collect all rows first before rendering them within a parent table cell.
+//
+// Example:
+//
+//	nestedTable := table.NewTable(pdf, nestedColumns)
+//	nestedTable.AddRows([]map[string]interface{}{
+//	    {"id": "1", "name": "Item 1"},
+//	    {"id": "2", "name": "Item 2"},
+//	})
+//	// Later, when rendering parent row:
+//	parentRow := map[string]interface{}{
+//	    "category": "Products",
+//	    "_nested_category": nestedTable,
+//	}
+//	parentTable.AddRow(parentRow)
 func (t *Table) AddRows(data []map[string]interface{}) {
 	if t.storedRows == nil {
 		t.storedRows = make([]map[string]interface{}, 0)
@@ -593,7 +647,24 @@ func (t *Table) AddRows(data []map[string]interface{}) {
 	t.storedRows = append(t.storedRows, data...)
 }
 
-// AddSummaryRow adds a summary row with a label spanning multiple columns and totals
+// AddSummaryRow adds a summary row with a label spanning multiple columns and total values.
+//
+// Parameters:
+//   - label: Text to display in the label cell that spans the first labelSpan columns.
+//   - labelSpan: Number of columns the label should span (starting from the first column).
+//   - totals: Map of column Key to total value. Values are converted to strings for display.
+//   - style: CellStyle to apply to all cells in the summary row. Overrides DataStyle.
+//
+// The summary row consists of:
+//   - A label cell spanning the first labelSpan columns (left-aligned)
+//   - Total value cells for remaining columns, using values from the totals map
+//
+// Example:
+//
+//	tbl.AddSummaryRow("Total", 2, map[string]interface{}{
+//	    "quantity": 100,
+//	    "amount": 5000.00,
+//	}, table.CellStyle{Bold: true, FillColor: []int{240, 240, 240}})
 func (t *Table) AddSummaryRow(label string, labelSpan int, totals map[string]interface{}, style CellStyle) {
 	if len(t.Columns) == 0 {
 		return
@@ -650,12 +721,45 @@ func (t *Table) AddSummaryRow(label string, labelSpan int, totals map[string]int
 	t.pdf.Ln(rowHeight + t.Spacing)
 }
 
-// AddTotalRow adds a grand total row spanning all columns (or specified columns)
+// AddTotalRow adds a grand total row where the label spans all columns.
+//
+// Parameters:
+//   - label: Text to display as the label (spans all columns).
+//   - totals: Map of column Key to total value. Values are converted to strings.
+//   - style: CellStyle to apply to the total row.
+//
+// This is a convenience method that calls AddSummaryRow with labelSpan equal to
+// the number of columns, making the label span the entire width of the table.
+//
+// Example:
+//
+//	tbl.AddTotalRow("Grand Total", map[string]interface{}{
+//	    "amount": 10000.00,
+//	}, table.CellStyle{Bold: true, FillColor: []int{220, 220, 220}})
 func (t *Table) AddTotalRow(label string, totals map[string]interface{}, style CellStyle) {
 	t.AddSummaryRow(label, len(t.Columns), totals, style)
 }
 
-// Render renders the complete table
+// Render renders the complete table with optional headers and data rows.
+//
+// Parameters:
+//   - headers: If true, renders the header row before data rows using AddHeader().
+//   - data: Slice of row data maps to render. If empty or nil, uses storedRows
+//     (rows previously added via AddRows()).
+//
+// This method provides a convenient way to render an entire table at once.
+// It handles positioning, header rendering, and iterates through all data rows.
+//
+// If StartY is set, it's applied only to the first row and then cleared for
+// subsequent rows. StartX is maintained for all rows to ensure consistent alignment.
+//
+// Example:
+//
+//	data := []map[string]interface{}{
+//	    {"id": "1", "name": "Alice", "email": "alice@example.com"},
+//	    {"id": "2", "name": "Bob", "email": "bob@example.com"},
+//	}
+//	tbl.Render(true, data)
 func (t *Table) Render(headers bool, data []map[string]interface{}) {
 	if headers {
 		t.AddHeader()
@@ -702,8 +806,25 @@ func (t *Table) Render(headers bool, data []map[string]interface{}) {
 	}
 }
 
-// calculateNestedTableHeight calculates the total height needed for a nested table
-// including text wrapping in nested cells
+// calculateNestedTableHeight calculates the total height required to render a nested table,
+// accounting for text wrapping in nested cells and column width scaling.
+//
+// Parameters:
+//   - nestedTable: The nested Table instance to measure.
+//   - availableWidth: The width available for the nested table in mm.
+//
+// Returns:
+//   - float64: Total height in mm required to render all rows of the nested table.
+//
+// The calculation:
+//   - Scales nested table columns if they exceed availableWidth
+//   - Accounts for text wrapping in nested cells based on scaled column widths
+//   - Sums row heights plus spacing
+//   - Uses nested table's font size (70% of parent) for accurate text width calculations
+//   - Returns at least the minimum row height if no rows are stored
+//
+// This is used internally by AddRow to determine proper row height when a cell
+// contains a nested table.
 func (t *Table) calculateNestedTableHeight(nestedTable *Table, availableWidth float64) float64 {
 	if nestedTable == nil {
 		return 0
@@ -799,8 +920,26 @@ func (t *Table) calculateNestedTableHeight(nestedTable *Table, availableWidth fl
 	return totalHeight
 }
 
-// renderNestedTable renders a nested table at absolute positions without affecting parent cursor
-// maxWidth and maxHeight define the clipping boundaries for the nested table
+// renderNestedTable renders a nested table at absolute positions without affecting
+// the parent PDF cursor position or state.
+//
+// Parameters:
+//   - nestedTable: The Table instance to render as a nested table.
+//   - startX: Absolute X position in mm where the nested table should start.
+//   - startY: Absolute Y position in mm where the nested table should start.
+//   - maxWidth: Maximum width in mm available for the nested table (defines clipping boundary).
+//   - maxHeight: Maximum height in mm available for the nested table (defines clipping boundary).
+//
+// The method:
+//   - Renders each row of the nested table at absolute positions
+//   - Clips content that exceeds maxWidth and maxHeight boundaries
+//   - Temporarily disables automatic page breaks to prevent nested table from creating pages
+//   - Scales nested table columns if they exceed maxWidth
+//   - Reduces font size to 70% of parent (minimum 6pt) for better fit
+//   - Preserves parent PDF state (cursor position, page break settings, etc.)
+//   - Clears row span tracker for clean nested table rendering
+//
+// After rendering, the parent PDF cursor position is restored to its original location.
 func (t *Table) renderNestedTable(nestedTable *Table, startX, startY, maxWidth, maxHeight float64) {
 	// Get rows to render
 	rowsToRender := nestedTable.storedRows
