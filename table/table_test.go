@@ -867,3 +867,653 @@ func savePDFBytesToFile(pdfBytes []byte, path string) error {
 	// Write PDF bytes to file
 	return os.WriteFile(path, pdfBytes, 0644)
 }
+
+// TestTableAddSummaryRow tests summary row rendering
+func TestTableAddSummaryRow(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "category", Label: "Category", Width: 50},
+		{Key: "item", Label: "Item", Width: 50},
+		{Key: "quantity", Label: "Qty", Width: 30, Align: "R"},
+		{Key: "price", Label: "Price", Width: 40, Align: "R"},
+	}
+
+	tbl := NewTable(pdf, columns)
+	tbl.AddHeader()
+
+	// Add some data rows
+	data := []map[string]interface{}{
+		{"category": "Electronics", "item": "Laptop", "quantity": 5, "price": 999.99},
+		{"category": "Electronics", "item": "Phone", "quantity": 10, "price": 699.99},
+		{"category": "Books", "item": "Novel", "quantity": 20, "price": 19.99},
+	}
+
+	for _, row := range data {
+		tbl.AddRow(row)
+	}
+
+	// Add summary row
+	tbl.AddSummaryRow("Subtotal", 2, map[string]interface{}{
+		"quantity": 35,
+		"price":    1719.97,
+	}, CellStyle{
+		Border:    "1",
+		Bold:      true,
+		FillColor: []int{240, 240, 240},
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+
+	// Verify PDF can be generated
+	var buf bytes.Buffer
+	err := pdf.Output(&buf)
+	if err != nil {
+		t.Errorf("Failed to generate PDF: %v", err)
+	}
+
+	if buf.Len() == 0 {
+		t.Error("Generated PDF is empty")
+	}
+}
+
+// TestTableAddTotalRow tests total row rendering
+func TestTableAddTotalRow(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "product", Label: "Product", Width: 60},
+		{Key: "amount", Label: "Amount", Width: 50, Align: "R"},
+	}
+
+	tbl := NewTable(pdf, columns)
+	tbl.AddHeader()
+
+	// Add data rows
+	tbl.AddRow(map[string]interface{}{"product": "Product A", "amount": 100.50})
+	tbl.AddRow(map[string]interface{}{"product": "Product B", "amount": 250.75})
+	tbl.AddRow(map[string]interface{}{"product": "Product C", "amount": 99.25})
+
+	// Add total row
+	tbl.AddTotalRow("Grand Total", map[string]interface{}{
+		"amount": 450.50,
+	}, CellStyle{
+		Border:    "1",
+		Bold:      true,
+		FillColor: []int{220, 220, 220},
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableColumnSpan tests column spanning in headers and rows
+func TestTableColumnSpan(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "name", Label: "Name", Width: 60},
+		{Key: "email", Label: "Email", Width: 100},
+		{Key: "phone", Label: "Phone", Width: 60},
+	}
+
+	tbl := NewTable(pdf, columns)
+
+	// Test column span in header
+	columns[0].ColSpan = 2
+	tbl.Columns[0].ColSpan = 2
+
+	tbl.AddHeader()
+
+	// Test column span in data row
+	tbl.AddRow(map[string]interface{}{
+		"id":    "1",
+		"name":  "John Doe",
+		"email": "john@example.com",
+		"phone": "123-456-7890",
+		"_colspan": map[string]int{
+			"name": 2, // Name spans 2 columns
+		},
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableRowSpan tests row spanning
+func TestTableRowSpan(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "name", Label: "Name", Width: 60},
+		{Key: "item1", Label: "Item 1", Width: 50},
+		{Key: "item2", Label: "Item 2", Width: 50},
+	}
+
+	tbl := NewTable(pdf, columns)
+	tbl.AddHeader()
+
+	// Add row with row span
+	tbl.AddRow(map[string]interface{}{
+		"id":     "1",
+		"name":   "Alice",
+		"item1":  "Product A",
+		"item2":  "Product B",
+		"_rowspan": map[string]int{
+			"id":   3, // ID spans 3 rows
+			"name": 3, // Name spans 3 rows
+		},
+	})
+
+	// Add subsequent rows (spanned cells will be skipped)
+	tbl.AddRow(map[string]interface{}{
+		"item1": "Product C",
+		"item2": "Product D",
+	})
+
+	tbl.AddRow(map[string]interface{}{
+		"item1": "Product E",
+		"item2": "Product F",
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+
+	// Verify PDF generation
+	var buf bytes.Buffer
+	err := pdf.Output(&buf)
+	if err != nil {
+		t.Errorf("Failed to generate PDF: %v", err)
+	}
+}
+
+// TestTableNestedTables tests nested tables within cells
+func TestTableNestedTables(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	// Parent table
+	parentColumns := []Column{
+		{Key: "category", Label: "Category", Width: 80},
+		{Key: "items", Label: "Items", Width: 110},
+	}
+
+	parentTable := NewTable(pdf, parentColumns)
+	parentTable.AddHeader()
+
+	// Create nested table
+	nestedColumns := []Column{
+		{Key: "item", Label: "Item", Width: 40},
+		{Key: "qty", Label: "Qty", Width: 30, Align: "R"},
+	}
+
+	nestedTable := NewTable(pdf, nestedColumns)
+	nestedTable.AddRows([]map[string]interface{}{
+		{"item": "Item A", "qty": 5},
+		{"item": "Item B", "qty": 10},
+		{"item": "Item C", "qty": 3},
+	})
+
+	// Add row with nested table
+	parentTable.AddRow(map[string]interface{}{
+		"category":       "Electronics",
+		"_nested_items": nestedTable,
+	})
+
+	// Add another row with different nested table
+	nestedTable2 := NewTable(pdf, nestedColumns)
+	nestedTable2.AddRows([]map[string]interface{}{
+		{"item": "Item X", "qty": 2},
+		{"item": "Item Y", "qty": 8},
+	})
+
+	parentTable.AddRow(map[string]interface{}{
+		"category":       "Books",
+		"_nested_items": nestedTable2,
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+
+	// Verify PDF generation
+	var buf bytes.Buffer
+	err := pdf.Output(&buf)
+	if err != nil {
+		t.Errorf("Failed to generate PDF: %v", err)
+	}
+
+	if buf.Len() == 0 {
+		t.Error("Generated PDF is empty")
+	}
+}
+
+// TestTableTextWrapping tests automatic text wrapping
+func TestTableTextWrapping(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "description", Label: "Description", Width: 80},
+	}
+
+	tbl := NewTable(pdf, columns)
+	tbl.AddHeader()
+
+	// Add row with long text that should wrap
+	tbl.AddRow(map[string]interface{}{
+		"id":          "1",
+		"description": "This is a very long description that should wrap to multiple lines within the cell because it exceeds the column width",
+	})
+
+	// Add row with MaxWidth constraint
+	columns[1].MaxWidth = 50
+	tbl.Columns[1].MaxWidth = 50
+
+	tbl.AddRow(map[string]interface{}{
+		"id":          "2",
+		"description": "Another long text that should wrap based on MaxWidth constraint",
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableAlternatingRows tests zebra striping
+func TestTableAlternatingRows(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "name", Label: "Name", Width: 60},
+	}
+
+	tbl := NewTable(pdf, columns).
+		WithAlternatingRows(true)
+	tbl.RowStyle.FillColor = []int{245, 245, 245}
+
+	tbl.AddHeader()
+
+	// Add multiple rows
+	for i := 1; i <= 5; i++ {
+		tbl.AddRow(map[string]interface{}{
+			"id":   i,
+			"name": "Item " + string(rune(64+i)),
+		})
+	}
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableCheckPageBreak tests page break functionality
+func TestTableCheckPageBreak(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 10)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "data", Label: "Data", Width: 150},
+	}
+
+	tbl := NewTable(pdf, columns).
+		WithPageBreakMode(true).
+		WithPageBreakMargin(30).
+		WithRepeatHeader(true)
+
+	tbl.AddHeader()
+
+	// Add enough rows to trigger page break
+	// A4 height is ~297mm, with margins ~257mm usable
+	// Row height ~8mm + spacing, so need ~30+ rows per page
+	for i := 1; i <= 60; i++ {
+		tbl.AddRow(map[string]interface{}{
+			"id":   i,
+			"data": "Row " + string(rune(48+(i%10))),
+		})
+	}
+
+	pageCount := pdf.PageCount()
+	// Page break may or may not occur depending on exact measurements
+	// Just verify the test completes without errors
+	t.Logf("Created table with page breaks: %d pages", pageCount)
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableWithRowSpacing tests row spacing
+func TestTableWithRowSpacing(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "name", Label: "Name", Width: 60},
+	}
+
+	tbl := NewTable(pdf, columns).
+		WithRowSpacing(3.0)
+
+	tbl.AddHeader()
+
+	for i := 1; i <= 3; i++ {
+		tbl.AddRow(map[string]interface{}{
+			"id":   i,
+			"name": "Item " + string(rune(64+i)),
+		})
+	}
+
+	if tbl.Spacing != 3.0 {
+		t.Errorf("Expected spacing 3.0, got %.2f", tbl.Spacing)
+	}
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableWithPageBreakMargin tests page break margin configuration
+func TestTableWithPageBreakMargin(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	columns := []Column{{Key: "id", Label: "ID"}}
+
+	tbl := NewTable(pdf, columns).
+		WithPageBreakMargin(25.0)
+
+	if tbl.PageBreakMargin != 25.0 {
+		t.Errorf("Expected PageBreakMargin 25.0, got %.2f", tbl.PageBreakMargin)
+	}
+}
+
+// TestTableApplyCellStyle tests cell style application
+func TestTableApplyCellStyle(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 50},
+	}
+
+	tbl := NewTable(pdf, columns)
+
+	// Test style with bold and italic
+	style := CellStyle{
+		Bold:      true,
+		Italic:    true,
+		FontSize:  14,
+		FillColor: []int{255, 200, 200},
+		TextColor: []int{0, 0, 255},
+		Border:    "1",
+	}
+
+	tbl.WithHeaderStyle(style)
+	tbl.AddHeader()
+
+	// Verify style was applied (indirectly by checking no errors)
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableValueToStringComprehensive tests valueToString with various types
+func TestTableValueToStringComprehensive(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "value", Label: "Value", Width: 60},
+	}
+
+	tbl := NewTable(pdf, columns)
+
+	// Test various types
+	testCases := []map[string]interface{}{
+		{"value": "string"},
+		{"value": 123},
+		{"value": int64(456)},
+		{"value": float32(78.9)},
+		{"value": float64(123.456)},
+		{"value": true},
+		{"value": false},
+		{"value": nil},
+		{"value": []int{1, 2, 3}}, // Slice
+		{"value": map[string]int{"a": 1}}, // Map
+	}
+
+	for _, tc := range testCases {
+		tbl.AddRow(tc)
+	}
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableColumnSpanInHeader tests column spanning in header cells
+func TestTableColumnSpanInHeader(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "info", Label: "Information", Width: 50, ColSpan: 2},
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "name", Label: "Name", Width: 60},
+		{Key: "price", Label: "Price", Width: 40},
+	}
+
+	tbl := NewTable(pdf, columns)
+	tbl.AddHeader()
+
+	// Add data rows
+	tbl.AddRow(map[string]interface{}{
+		"id":    "1",
+		"name":  "Product A",
+		"price": 99.99,
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableMergeCellDeprecated tests deprecated MergeCell field
+func TestTableMergeCellDeprecated(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "merged", Label: "Merged", Width: 50, MergeCell: true},
+		{Key: "id", Label: "ID", Width: 30},
+	}
+
+	tbl := NewTable(pdf, columns)
+
+	// Verify MergeCell sets ColSpan
+	if tbl.Columns[0].ColSpan == 0 {
+		t.Error("Expected ColSpan to be set when MergeCell is true")
+	}
+
+	tbl.AddHeader()
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableEmptyColumns tests edge case with empty columns
+func TestTableEmptyColumns(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	tbl := NewTable(pdf, []Column{})
+
+	// Should not panic or error on empty columns
+	tbl.AddHeader()
+	tbl.AddRow(map[string]interface{}{})
+	tbl.Render(false, []map[string]interface{}{})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableNestedTableWithRowSpan tests nested table with row spanning
+func TestTableNestedTableWithRowSpan(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	parentColumns := []Column{
+		{Key: "category", Label: "Category", Width: 60},
+		{Key: "details", Label: "Details", Width: 130},
+	}
+
+	parentTable := NewTable(pdf, parentColumns)
+	parentTable.AddHeader()
+
+	// Create nested table
+	nestedColumns := []Column{
+		{Key: "item", Label: "Item", Width: 50},
+		{Key: "qty", Label: "Qty", Width: 30},
+	}
+
+	nestedTable := NewTable(pdf, nestedColumns)
+	nestedTable.AddRows([]map[string]interface{}{
+		{"item": "Item A", "qty": 5},
+		{"item": "Item B", "qty": 10},
+	})
+
+	// Add row with nested table that has row span
+	parentTable.AddRow(map[string]interface{}{
+		"category":       "Products",
+		"_nested_details": nestedTable,
+		"_rowspan": map[string]int{
+			"category": 2,
+		},
+	})
+
+	// Add another row for row span continuation
+	parentTable.AddRow(map[string]interface{}{
+		"details": "Additional info",
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableComplexAlignment tests complex alignment scenarios
+func TestTableComplexAlignment(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "col1", Label: "Col1", Width: 50, Align: "L", HeaderAlign: "C"},
+		{Key: "col2", Label: "Col2", Width: 50, Align: "R", HeaderAlign: "L"},
+		{Key: "col3", Label: "Col3", Width: 50, Align: "C", HeaderAlign: "R"},
+	}
+
+	tbl := NewTable(pdf, columns).
+		WithHeaderStyle(CellStyle{Align: "C"}).
+		WithDataStyle(CellStyle{Align: "L"})
+
+	tbl.AddHeader()
+
+	// Add row with per-cell alignment overrides
+	tbl.AddRow(map[string]interface{}{
+		"col1": "Data1",
+		"col2": "Data2",
+		"col3": "Data3",
+		"_align": map[string]string{
+			"col1": "R",
+			"col2": "C",
+			"col3": "L",
+		},
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+}
+
+// TestTableWithRepeatHeader tests header repetition configuration
+func TestTableWithRepeatHeader(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	columns := []Column{{Key: "id", Label: "ID"}}
+
+	tbl := NewTable(pdf, columns)
+
+	// Test default (should be true)
+	if !tbl.RepeatHeader {
+		t.Error("Expected RepeatHeader to be true by default")
+	}
+
+	// Test disabling
+	tbl.WithRepeatHeader(false)
+	if tbl.RepeatHeader {
+		t.Error("Expected RepeatHeader to be false after WithRepeatHeader(false)")
+	}
+
+	// Test enabling
+	tbl.WithRepeatHeader(true)
+	if !tbl.RepeatHeader {
+		t.Error("Expected RepeatHeader to be true after WithRepeatHeader(true)")
+	}
+}
+
+// TestTableWithPageBreakMode tests page break mode configuration
+func TestTableWithPageBreakMode(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	columns := []Column{{Key: "id", Label: "ID"}}
+
+	tbl := NewTable(pdf, columns)
+
+	// Test default (should be true)
+	if !tbl.PageBreakMode {
+		t.Error("Expected PageBreakMode to be true by default")
+	}
+
+	// Test disabling
+	tbl.WithPageBreakMode(false)
+	if tbl.PageBreakMode {
+		t.Error("Expected PageBreakMode to be false after WithPageBreakMode(false)")
+	}
+
+	// Test enabling
+	tbl.WithPageBreakMode(true)
+	if !tbl.PageBreakMode {
+		t.Error("Expected PageBreakMode to be true after WithPageBreakMode(true)")
+	}
+}
