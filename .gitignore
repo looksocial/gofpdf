@@ -27,3 +27,4 @@ coverage.html
 *.exe
 
 ./makefont/*.exe
+makefont/makefont.exe
