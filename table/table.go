@@ -69,6 +69,7 @@ func NewTable(pdf *gofpdf.Fpdf, columns []Column) *Table {
 		PageBreakMargin: 20.0, // Default: 20mm margin from bottom
 		rowSpanTracker:  make(map[string]int),
 		storedRows:      nil,
+		currentRow:      0, // Initialize row counter for zebra striping
 		HeaderStyle: CellStyle{
 			Border:    "1",
 			Bold:      true,
@@ -118,6 +119,10 @@ func (t *Table) calculateColumnWidths() {
 		pageWidth, _ := t.pdf.GetPageSize()
 		// Calculate usable width
 		usableWidth := pageWidth - left - right - totalWidth
+		// Clamp usableWidth to be at least 0 to prevent negative widths
+		if usableWidth < 0 {
+			usableWidth = 0
+		}
 		avgWidth := usableWidth / float64(colsWithoutWidth)
 
 		for i := range t.Columns {

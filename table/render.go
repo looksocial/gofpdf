@@ -40,7 +40,8 @@ func (t *Table) AddHeader() {
 	xPos := startX
 	rowHeight := t.getRowHeight()
 
-	for _, col := range t.Columns {
+	for i := 0; i < len(t.Columns); i++ {
+		col := t.Columns[i]
 		// Determine header alignment: HeaderAlign > CellStyle.Align > Column.Align
 		align := col.HeaderAlign
 		if align == "" {
@@ -52,20 +53,24 @@ func (t *Table) AddHeader() {
 		}
 
 		if col.ColSpan > 1 {
-			// Calculate width for merged cells
+			// Calculate width for merged cells by summing from current index
 			totalWidth := 0.0
-			for i := 0; i < col.ColSpan; i++ {
-				totalWidth += t.Columns[i].Width
+			for j := i; j < i+col.ColSpan && j < len(t.Columns); j++ {
+				totalWidth += t.Columns[j].Width
 			}
 			t.pdf.SetXY(xPos, startY)
 			t.pdf.CellFormat(totalWidth, rowHeight, col.Label, t.HeaderStyle.Border, 0,
 				t.getAlignStr(align), true, 0, "")
+			// Advance xPos by totalWidth and skip spanned columns
+			xPos += totalWidth
+			i += col.ColSpan - 1 // Skip spanned columns in outer loop
 		} else {
 			t.pdf.SetXY(xPos, startY)
 			t.pdf.CellFormat(col.Width, rowHeight, col.Label, t.HeaderStyle.Border, 0,
 				t.getAlignStr(align), true, 0, "")
+			// Advance xPos by single column width
+			xPos += col.Width
 		}
-		xPos += col.Width
 	}
 
 	// Move to next line
@@ -99,6 +104,10 @@ func (t *Table) AddRow(data map[string]interface{}) {
 	if len(t.Columns) == 0 {
 		return
 	}
+
+	// Increment row counter for zebra striping before rendering
+	// This ensures consistent alternating regardless of page breaks or Y position
+	t.currentRow++
 
 	startX := t.pdf.GetX()
 	currentY := t.pdf.GetY()

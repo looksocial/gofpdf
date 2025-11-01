@@ -2,17 +2,14 @@ package table
 
 import (
 	"fmt"
-	"math"
 )
 
 // shouldFillRow returns true if current row should be filled (for zebra striping)
 func (t *Table) shouldFillRow() bool {
 	if t.RowStyle.Alternating {
-		// Simple alternating based on Y position
-		currentY := t.pdf.GetY()
-		cellHeight := t.getRowHeight()
-		rows := int(math.Round(currentY / (cellHeight + t.Spacing)))
-		return rows%2 == 1
+		// Alternating based on logical row index, which is independent of page layout
+		// Odd-indexed rows (1, 3, 5, ...) are filled
+		return t.currentRow%2 == 1
 	}
 	return false
 }

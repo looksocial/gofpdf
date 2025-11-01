@@ -110,6 +110,8 @@ type RowStyle struct {
 //   - rowSpanTracker: Internal map tracking active row spans. Key format: "colIndex-rowIndex".
 //   - storedRows: Internal slice storing rows for deferred rendering, primarily used
 //     for nested tables that need to be rendered within parent table cells.
+//   - currentRow: Internal counter tracking the logical row index for zebra striping.
+//     Incremented each time AddRow is called, resets only when a new table is created.
 type Table struct {
 	pdf            *gofpdf.Fpdf
 	Columns        []Column
@@ -126,5 +128,6 @@ type Table struct {
 	PageBreakMargin float64                 // Margin from bottom before page break (default: 20mm)
 	rowSpanTracker map[string]int           // Tracks row spans: "colIndex-rowIndex" -> remaining rows
 	storedRows     []map[string]interface{} // Stored rows for deferred rendering (used for nested tables)
+	currentRow     int                      // Logical row index for zebra striping (0-indexed)
 }
 
