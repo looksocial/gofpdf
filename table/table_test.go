@@ -1042,6 +1042,64 @@ func TestTableRowSpan(t *testing.T) {
 	}
 }
 
+// TestTableRowSpanWithSpacing tests row spanning with row spacing
+func TestTableRowSpanWithSpacing(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 12)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30},
+		{Key: "name", Label: "Name", Width: 60},
+		{Key: "item1", Label: "Item 1", Width: 50},
+		{Key: "item2", Label: "Item 2", Width: 50},
+	}
+
+	tbl := NewTable(pdf, columns).
+		WithRowSpacing(2.0) // Set spacing to verify it's included in key calculation
+
+	tbl.AddHeader()
+
+	// Add row with row span - this should track keys correctly with spacing
+	tbl.AddRow(map[string]interface{}{
+		"id":     "1",
+		"name":   "Alice",
+		"item1":  "Product A",
+		"item2":  "Product B",
+		"_rowspan": map[string]int{
+			"id":   3, // ID spans 3 rows
+			"name": 3, // Name spans 3 rows
+		},
+	})
+
+	// Add subsequent rows (spanned cells will be skipped)
+	// The rowSpanTracker keys should match actual Y positions including spacing
+	tbl.AddRow(map[string]interface{}{
+		"item1": "Product C",
+		"item2": "Product D",
+	})
+
+	tbl.AddRow(map[string]interface{}{
+		"item1": "Product E",
+		"item2": "Product F",
+	})
+
+	if pdf.Error() != nil {
+		t.Errorf("Unexpected error: %v", pdf.Error())
+	}
+
+	// Verify PDF generation
+	var buf bytes.Buffer
+	err := pdf.Output(&buf)
+	if err != nil {
+		t.Errorf("Failed to generate PDF: %v", err)
+	}
+
+	if buf.Len() == 0 {
+		t.Error("Generated PDF is empty")
+	}
+}
+
 // TestTableNestedTables tests nested tables within cells
 func TestTableNestedTables(t *testing.T) {
 	pdf := gofpdf.New("P", "mm", "A4", "")

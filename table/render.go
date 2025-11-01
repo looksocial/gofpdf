@@ -444,11 +444,13 @@ func (t *Table) AddRow(data map[string]interface{}) {
 		if cellRowSpan > 1 {
 			// Use original row height for row span calculations to maintain grid alignment
 			originalRowHeight := rowHeight
-			totalHeight = originalRowHeight*float64(cellRowSpan) + t.Spacing*float64(cellRowSpan-1)
+			rowSpacing := t.Spacing
+			totalHeight = originalRowHeight*float64(cellRowSpan) + rowSpacing*float64(cellRowSpan-1)
 
-			// Track this row span - use originalRowHeight for tracking positions
+			// Track this row span - use originalRowHeight + spacing for tracking positions
+			// to match actual rendered Y positions
 			for j := 1; j < cellRowSpan; j++ {
-				nextKey := fmt.Sprintf("%d-%d", i, int(currentY+float64(j)*originalRowHeight))
+				nextKey := fmt.Sprintf("%d-%d", i, int(currentY+float64(j)*(originalRowHeight+rowSpacing)))
 				t.rowSpanTracker[nextKey] = cellRowSpan - j
 			}
 		}
