@@ -51,6 +51,8 @@ Original Projects:
 
 -   Import PDFs as templates
 
+-   Table Component - Professional table generation with advanced features
+
 gofpdf has no dependencies other than the Go standard library. All tests
 pass on Linux, Mac and Windows platforms. Thai fonts are embedded in the
 package, requiring no external dependencies.

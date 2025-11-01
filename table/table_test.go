@@ -2,6 +2,8 @@ package table
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/looksocial/gofpdf"
@@ -656,4 +658,212 @@ func BenchmarkTableRender(b *testing.B) {
 		tbl := NewTable(pdf, columns)
 		tbl.Render(true, data)
 	}
+}
+
+// TestTableMultiPageWithHeaderRepeat tests automatic page breaks with header repetition
+func TestTableMultiPageWithHeaderRepeat(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 10)
+
+	columns := []Column{
+		{Key: "id", Label: "ID", Width: 30, Align: "C"},
+		{Key: "product", Label: "Product Name", Width: 80, Align: "L"},
+		{Key: "price", Label: "Price", Width: 40, Align: "R"},
+		{Key: "stock", Label: "Stock", Width: 40, Align: "C"},
+	}
+
+	// Create table with header repetition enabled (default)
+	tbl := NewTable(pdf, columns).
+		WithHeaderStyle(CellStyle{
+			Border:    "1",
+			Bold:      true,
+			FillColor: []int{100, 150, 200},
+			TextColor: []int{255, 255, 255},
+		}).
+		WithDataStyle(CellStyle{
+			Border: "1",
+		}).
+		WithRowHeight(8).
+		WithRepeatHeader(true).
+		WithPageBreakMode(true).
+		WithPageBreakMargin(20)
+
+	// Verify default settings
+	if !tbl.RepeatHeader {
+		t.Error("Expected RepeatHeader to be true")
+	}
+	if !tbl.PageBreakMode {
+		t.Error("Expected PageBreakMode to be true")
+	}
+	if tbl.PageBreakMargin != 20 {
+		t.Errorf("Expected PageBreakMargin to be 20, got %f", tbl.PageBreakMargin)
+	}
+
+	// Add header
+	tbl.AddHeader()
+
+	// Get initial page count
+	initialPageCount := pdf.PageCount()
+	if initialPageCount != 1 {
+		t.Errorf("Expected 1 page initially, got %d", initialPageCount)
+	}
+
+	// Add enough rows to trigger page breaks
+	// A4 height is ~297mm, with 20mm top/bottom margins = 257mm usable
+	// Each row is ~8mm, so we need ~35+ rows to fill a page
+	rowCount := 50
+
+	for i := 1; i <= rowCount; i++ {
+		tbl.AddRow(map[string]interface{}{
+			"id":      i,
+			"product": "Product " + string(rune(65+(i%26))),
+			"price":   19.99 + float64(i),
+			"stock":   100 + i*5,
+		})
+	}
+
+	// Check that multiple pages were created
+	finalPageCount := pdf.PageCount()
+	if finalPageCount <= 1 {
+		t.Errorf("Expected more than 1 page with %d rows, got %d pages", rowCount, finalPageCount)
+	}
+
+	// Generate PDF to verify it's valid
+	var buf bytes.Buffer
+	err := pdf.Output(&buf)
+	if err != nil {
+		t.Errorf("Failed to generate PDF: %v", err)
+	}
+
+	// Verify PDF has content
+	if buf.Len() == 0 {
+		t.Error("Generated PDF is empty")
+	}
+
+	// Basic PDF validation - check for page objects in PDF
+	if !bytes.Contains(buf.Bytes(), []byte("/Type /Page")) {
+		t.Error("PDF does not contain page objects")
+	}
+
+	// Save PDF to file for visual inspection
+	outputPath := "../pdf/test_multipage_with_header_repeat.pdf"
+	if err := savePDFBytesToFile(buf.Bytes(), outputPath); err != nil {
+		t.Logf("Warning: Could not save PDF to %s: %v", outputPath, err)
+	} else {
+		t.Logf("PDF saved to: %s", outputPath)
+	}
+
+	t.Logf("Successfully created multi-page table: %d rows across %d pages", rowCount, finalPageCount)
+}
+
+// TestTableMultiPageWithoutHeaderRepeat tests automatic page breaks without header repetition
+func TestTableMultiPageWithoutHeaderRepeat(t *testing.T) {
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 10)
+
+	columns := []Column{
+		{Key: "order", Label: "Order ID", Width: 40, Align: "C"},
+		{Key: "customer", Label: "Customer Name", Width: 80, Align: "L"},
+		{Key: "date", Label: "Order Date", Width: 35, Align: "C"},
+		{Key: "total", Label: "Total", Width: 35, Align: "R"},
+	}
+
+	// Create table with header repetition DISABLED
+	tbl := NewTable(pdf, columns).
+		WithHeaderStyle(CellStyle{
+			Border:    "1",
+			Bold:      true,
+			FillColor: []int{200, 100, 100},
+		}).
+		WithDataStyle(CellStyle{
+			Border: "1",
+		}).
+		WithRowHeight(8).
+		WithRepeatHeader(false).      // Disable header repetition
+		WithPageBreakMode(true).      // Enable page breaks
+		WithPageBreakMargin(20)
+
+	// Verify settings
+	if tbl.RepeatHeader {
+		t.Error("Expected RepeatHeader to be false")
+	}
+	if !tbl.PageBreakMode {
+		t.Error("Expected PageBreakMode to be true")
+	}
+
+	// Add header - should only appear once
+	tbl.AddHeader()
+
+	// Get initial page count
+	initialPageCount := pdf.PageCount()
+	if initialPageCount != 1 {
+		t.Errorf("Expected 1 page initially, got %d", initialPageCount)
+	}
+
+	// Add enough rows to span multiple pages
+	rowCount := 45
+
+	for i := 1; i <= rowCount; i++ {
+		tbl.AddRow(map[string]interface{}{
+			"order":    "ORD-" + string(rune(48+i%10)) + string(rune(48+(i/10)%10)) + string(rune(48+(i/100))),
+			"customer": "Customer " + string(rune(65+(i%26))),
+			"date":     "2024-11-01",
+			"total":    99.99 + float64(i)*5.50,
+		})
+	}
+
+	// Check that multiple pages were created
+	finalPageCount := pdf.PageCount()
+	if finalPageCount <= 1 {
+		t.Errorf("Expected more than 1 page with %d rows, got %d pages", rowCount, finalPageCount)
+	}
+
+	// Generate PDF to verify it's valid
+	var buf bytes.Buffer
+	err := pdf.Output(&buf)
+	if err != nil {
+		t.Errorf("Failed to generate PDF: %v", err)
+	}
+
+	// Verify PDF has content
+	if buf.Len() == 0 {
+		t.Error("Generated PDF is empty")
+	}
+
+	// Verify PDF structure
+	pdfContent := buf.Bytes()
+	if !bytes.Contains(pdfContent, []byte("/Type /Page")) {
+		t.Error("PDF does not contain page objects")
+	}
+
+	// Verify we have multiple pages
+	if !bytes.Contains(pdfContent, []byte("/Count "+string(rune(48+finalPageCount)))) &&
+		!bytes.Contains(pdfContent, []byte("/Count "+string(rune(48+finalPageCount)))) {
+		t.Logf("Note: Page count validation is informational only")
+	}
+
+	// Save PDF to file for visual inspection
+	outputPath := "../pdf/test_multipage_without_header_repeat.pdf"
+	if err := savePDFBytesToFile(pdfContent, outputPath); err != nil {
+		t.Logf("Warning: Could not save PDF to %s: %v", outputPath, err)
+	} else {
+		t.Logf("PDF saved to: %s", outputPath)
+	}
+
+	t.Logf("Successfully created multi-page table without header repetition: %d rows across %d pages", rowCount, finalPageCount)
+	t.Logf("Header should only appear on page 1 (RepeatHeader=false)")
+}
+
+// Helper function to save PDF bytes to file
+func savePDFBytesToFile(pdfBytes []byte, path string) error {
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
+	// Write PDF bytes to file
+	return os.WriteFile(path, pdfBytes, 0644)
 }

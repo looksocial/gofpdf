@@ -86,6 +86,21 @@ func (t *Table) AddRow(data map[string]interface{}) {
 		t.StartY = 0
 	}
 
+	// Pre-calculate row height to check if we need a page break
+	// Use a rough estimate based on row height
+	estimatedRowHeight := t.getRowHeight() * 3 // Conservative estimate for wrapped text
+
+	// Check if we need a page break before rendering this row
+	if t.checkPageBreak(estimatedRowHeight) {
+		// Page break was added, update positions
+		startX = t.pdf.GetX()
+		if t.StartX > 0 {
+			startX = t.StartX
+			t.pdf.SetX(startX)
+		}
+		currentY = t.pdf.GetY()
+	}
+
 	// Apply data style
 	t.applyCellStyle(t.DataStyle)
 
@@ -524,10 +539,6 @@ func (t *Table) AddRow(data map[string]interface{}) {
 				textX := savedXForCell + textPadding
 				textY := savedYForCell + textPadding
 				textWidth := cellWidth - 2*textPadding
-				textHeight := baseRowHeight - 2*textPadding
-
-				// Apply clipping to prevent text overflow from this cell
-				t.pdf.ClipRect(textX, textY, textWidth, textHeight, true)
 
 				t.pdf.SetXY(textX, textY)
 
@@ -537,9 +548,6 @@ func (t *Table) AddRow(data map[string]interface{}) {
 
 				// Render text without borders
 				t.pdf.MultiCell(textWidth, lineHeight, value, "", t.getAlignStr(align), false)
-
-				// Clear clipping
-				t.pdf.ClipEnd()
 
 				// Restore cursor position to continue with next cell
 				// Move X to the right edge of this cell, keep Y at row start
@@ -553,18 +561,9 @@ func (t *Table) AddRow(data map[string]interface{}) {
 					cellHeight = baseRowHeight
 				}
 
-				// Apply clipping for long text to prevent overflow
-				savedXForCell := t.pdf.GetX()
-				savedYForCell := t.pdf.GetY()
-
-				// Add clipping to prevent text overflow
-				t.pdf.ClipRect(savedXForCell, savedYForCell, cellWidth, cellHeight, true)
-
+				// Render cell directly - clipping can interfere with text rendering
 				t.pdf.CellFormat(cellWidth, cellHeight, value, border, 0,
 					t.getAlignStr(align), fill, 0, "")
-
-				// Clear clipping
-				t.pdf.ClipEnd()
 			}
 		}
 

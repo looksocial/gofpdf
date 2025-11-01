@@ -47,6 +47,9 @@ type Table struct {
 	AutoWidth      bool                     // Auto-calculate column widths if true
 	RowHeight      float64                  // Row height in mm (0 = auto)
 	Spacing        float64                  // Space between rows
+	RepeatHeader   bool                     // Repeat header on new pages (default: true)
+	PageBreakMode  bool                     // Enable automatic page breaks (default: true)
+	PageBreakMargin float64                 // Margin from bottom before page break (default: 20mm)
 	rowSpanTracker map[string]int           // Tracks row spans: "colIndex-rowIndex" -> remaining rows
 	storedRows     []map[string]interface{} // Stored rows for deferred rendering (used for nested tables)
 }

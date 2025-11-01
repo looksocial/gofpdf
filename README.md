@@ -1,4 +1,4 @@
-# gofpdf document generator
+# gofpdf pdf generator
 
 [![MIT
 licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/phpdave11/gofpdf/master/LICENSE)
@@ -37,6 +37,7 @@ support for text, drawing and images, including comprehensive Thai font support.
   - Barcodes
   - Charting facility
   - Import PDFs as templates
+  - **Table Component** - Professional table generation with advanced features (see [Table Documentation](table/README.md))
 
 gofpdf has no dependencies other than the Go standard library. All tests
 pass on Linux, Mac and Windows platforms. Thai fonts are embedded in the
@@ -85,6 +86,40 @@ See the functions in the
 file (shown as examples in this documentation) for more advanced PDF
 examples.
 
+### Quick Start with Table Component
+
+Generate professional tables with just a few lines of code:
+
+``` go
+import (
+    "github.com/looksocial/gofpdf"
+    "github.com/looksocial/gofpdf/table"
+)
+
+pdf := gofpdf.New("P", "mm", "A4", "")
+pdf.AddPage()
+pdf.SetFont("Arial", "", 12)
+
+// Define columns
+columns := []table.Column{
+    {Key: "id", Label: "ID", Width: 20, Align: "L"},
+    {Key: "name", Label: "Name", Width: 60, Align: "L"},
+    {Key: "email", Label: "Email", Width: 110, Align: "L"},
+}
+
+// Create and render table
+tbl := table.NewTable(pdf, columns)
+data := []map[string]interface{}{
+    {"id": "1", "name": "Alice", "email": "alice@example.com"},
+    {"id": "2", "name": "Bob", "email": "bob@example.com"},
+}
+tbl.Render(true, data)
+
+err := pdf.OutputFileAndClose("table.pdf")
+```
+
+See the [Table Documentation](table/README.md) for complete examples including nested tables, multi-page tables, and advanced styling.
+
 ## Errors
 
 If an error occurs in an Fpdf method, an internal error field is set.
@@ -128,7 +163,7 @@ of example PDFs. These can be found in the gofpdf/pdf directory after
 the tests complete.
 
 Please note that these examples run in the context of a test. In order
-run an example as a standalone application, you’ll need to examine
+run an example as a standalone application, you'll need to examine
 [fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
 for some helper routines, for example `exampleFilename()` and
 `summary()`.
@@ -148,6 +183,19 @@ internal resources must be consistent and the internal creation
 timestamps must be the same. To do this, the methods `SetCatalogSort()`
 and `SetCreationDate()` need to be called for both files. This is done
 automatically for all examples.
+
+### Example Screenshots
+
+Here are some examples of PDFs generated with gofpdf:
+
+**Invoice with Thai Language Support:**
+![Invoice Thai Example](image/demo/invoice_thai.jpg)
+
+**Quotation with Thai Language Support:**
+![Quotation Thai Example](image/demo/quotation_thai.jpg)
+
+**Booking Demo:**
+![Booking Demo Example](image/demo/booking_demo.jpg)
 
 ## Nonstandard Fonts
 

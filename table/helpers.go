@@ -59,8 +59,12 @@ func (t *Table) applyCellStyle(style CellStyle) {
 	if len(style.FillColor) >= 3 {
 		t.pdf.SetFillColor(style.FillColor[0], style.FillColor[1], style.FillColor[2])
 	}
+	// Always set text color - if not specified in style, use black (0,0,0)
 	if len(style.TextColor) >= 3 {
 		t.pdf.SetTextColor(style.TextColor[0], style.TextColor[1], style.TextColor[2])
+	} else {
+		// Default to black text if not specified
+		t.pdf.SetTextColor(0, 0, 0)
 	}
 }
 
@@ -97,6 +101,37 @@ func containsRune(s string, r rune) bool {
 			return true
 		}
 	}
+	return false
+}
+
+// checkPageBreak checks if we need to add a page break before rendering the next row
+// Returns true if a page break was added
+func (t *Table) checkPageBreak(requiredHeight float64) bool {
+	if !t.PageBreakMode {
+		return false
+	}
+
+	// Get current position and page dimensions
+	currentY := t.pdf.GetY()
+	_, pageHeight := t.pdf.GetPageSize()
+	_, _, _, bottomMargin := t.pdf.GetMargins()
+
+	// Calculate available space on current page
+	availableHeight := pageHeight - bottomMargin - t.PageBreakMargin - currentY
+
+	// Check if we need a page break
+	if requiredHeight > availableHeight {
+		// Add new page
+		t.pdf.AddPage()
+
+		// Repeat header if enabled
+		if t.RepeatHeader {
+			t.AddHeader()
+		}
+
+		return true
+	}
+
 	return false
 }
 

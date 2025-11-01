@@ -12,15 +12,18 @@ func NewTable(pdf *gofpdf.Fpdf, columns []Column) *Table {
 	}
 
 	t := &Table{
-		pdf:            pdf,
-		Columns:        columns,
-		StartX:         0,
-		StartY:         0,
-		AutoWidth:      false,
-		RowHeight:      0,
-		Spacing:        0,
-		rowSpanTracker: make(map[string]int),
-		storedRows:     nil,
+		pdf:             pdf,
+		Columns:         columns,
+		StartX:          0,
+		StartY:          0,
+		AutoWidth:       false,
+		RowHeight:       0,
+		Spacing:         0,
+		RepeatHeader:    true,  // Default: repeat headers on new pages
+		PageBreakMode:   true,  // Default: enable automatic page breaks
+		PageBreakMargin: 20.0,  // Default: 20mm margin from bottom
+		rowSpanTracker:  make(map[string]int),
+		storedRows:      nil,
 		HeaderStyle: CellStyle{
 			Border:    "1",
 			Bold:      true,

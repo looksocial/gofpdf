@@ -37,3 +37,21 @@ func (t *Table) WithAlternatingRows(enabled bool) *Table {
 	return t
 }
 
+// WithRepeatHeader sets whether to repeat header on new pages
+func (t *Table) WithRepeatHeader(repeat bool) *Table {
+	t.RepeatHeader = repeat
+	return t
+}
+
+// WithPageBreakMode enables/disables automatic page breaks
+func (t *Table) WithPageBreakMode(enabled bool) *Table {
+	t.PageBreakMode = enabled
+	return t
+}
+
+// WithPageBreakMargin sets the margin from bottom before page break
+func (t *Table) WithPageBreakMargin(margin float64) *Table {
+	t.PageBreakMargin = margin
+	return t
+}
+
