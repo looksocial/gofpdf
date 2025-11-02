@@ -1,11 +1,11 @@
-# gofpdf document generator
+# gofpdf pdf generator
 
 [![MIT
-licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/phpdave11/gofpdf/master/LICENSE)
+licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/phpdave11/gofpdf/main/LICENSE)
 [![Report](https://goreportcard.com/badge/github.com/looksocial/gofpdf)](https://goreportcard.com/report/github.com/looksocial/gofpdf)
 [![GoDoc](https://img.shields.io/badge/godoc-gofpdf-blue.svg)](https://godoc.org/github.com/looksocial/gofpdf)
 
-![](https://github.com/looksocial/gofpdf/raw/master/image/gofpdf.png?raw=true)
+![](https://github.com/looksocial/gofpdf/raw/main/image/gofpdf.png?raw=true)
 
 > **Note for Contributors and Users**: This package (`gofpdf`) is a fork of [gofpdf](https://github.com/jung-kurt/gofpdf),  **added Thai font support**. All the original functionality of gofpdf is preserved, and this fork includes embedded Thai fonts and enhanced UTF-8 support for Thai language text rendering.
 >
@@ -37,6 +37,7 @@ support for text, drawing and images, including comprehensive Thai font support.
   - Barcodes
   - Charting facility
   - Import PDFs as templates
+  - **Table Component** - Professional table generation with advanced features (see [Table Documentation](table/README.md))
 
 gofpdf has no dependencies other than the Go standard library. All tests
 pass on Linux, Mac and Windows platforms. Thai fonts are embedded in the
@@ -48,7 +49,7 @@ fork includes **extensive Thai font support** with 18+ embedded Thai font famili
 directly without additional setup. Note that Chinese, Japanese, and Korean
 characters may not be included in many general purpose fonts. For these
 languages, a specialized font (for example,
-[NotoSansSC](https://github.com/jsntn/webfonts/blob/master/NotoSansSC-Regular.ttf)
+[NotoSansSC](https://github.com/jsntn/webfonts/blob/main/NotoSansSC-Regular.ttf)
 for simplified Chinese) can be used.
 
 Also, support is provided to automatically translate UTF-8 runes to code
@@ -81,9 +82,43 @@ err := pdf.OutputFileAndClose("hello.pdf")
 ```
 
 See the functions in the
-[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
+[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go)
 file (shown as examples in this documentation) for more advanced PDF
 examples.
+
+### Quick Start with Table Component
+
+Generate professional tables with just a few lines of code:
+
+``` go
+import (
+    "github.com/looksocial/gofpdf"
+    "github.com/looksocial/gofpdf/table"
+)
+
+pdf := gofpdf.New("P", "mm", "A4", "")
+pdf.AddPage()
+pdf.SetFont("Arial", "", 12)
+
+// Define columns
+columns := []table.Column{
+    {Key: "id", Label: "ID", Width: 20, Align: "L"},
+    {Key: "name", Label: "Name", Width: 60, Align: "L"},
+    {Key: "email", Label: "Email", Width: 110, Align: "L"},
+}
+
+// Create and render table
+tbl := table.NewTable(pdf, columns)
+data := []map[string]interface{}{
+    {"id": "1", "name": "Alice", "email": "alice@example.com"},
+    {"id": "2", "name": "Bob", "email": "bob@example.com"},
+}
+tbl.Render(true, data)
+
+err := pdf.OutputFileAndClose("table.pdf")
+```
+
+See the [Table Documentation](table/README.md) for complete examples including nested tables, multi-page tables, and advanced styling.
 
 ## Errors
 
@@ -128,8 +163,8 @@ of example PDFs. These can be found in the gofpdf/pdf directory after
 the tests complete.
 
 Please note that these examples run in the context of a test. In order
-run an example as a standalone application, you’ll need to examine
-[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
+run an example as a standalone application, you'll need to examine
+[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go)
 for some helper routines, for example `exampleFilename()` and
 `summary()`.
 
@@ -148,6 +183,19 @@ internal resources must be consistent and the internal creation
 timestamps must be the same. To do this, the methods `SetCatalogSort()`
 and `SetCreationDate()` need to be called for both files. This is done
 automatically for all examples.
+
+### Example Screenshots
+
+Here are some examples of PDFs generated with gofpdf:
+
+**Invoice:**
+![Invoice Thai Example](image/demo/invoice.jpg)
+
+**Quotation:**
+![Quotation Thai Example](image/demo/quotation_thai.jpg)
+
+**Booking Demo:**
+![Booking Demo Example](image/demo/booking_demo.jpg)
 
 ## Nonstandard Fonts
 
@@ -200,7 +248,7 @@ Here are guidelines for making submissions. Your change should
   - be properly documented
   - be formatted with `go fmt`
   - include an example in
-    [fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
+    [fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go)
     if appropriate
   - conform to the standards of [golint](https://github.com/golang/lint)
     and [go vet](https://golang.org/cmd/vet/), that is, `golint .` and

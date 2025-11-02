@@ -32,6 +32,7 @@ text, drawing and images.
 * Barcodes
 * Charting facility
 * Import PDFs as templates
+* **Table Component** - Professional table generation with advanced features (see [Table Documentation](../table/README.md))
 
 gofpdf has no dependencies other than the Go standard library. All tests pass
 on Linux, Mac and Windows platforms.
@@ -285,7 +286,7 @@ for file attachments and annotations.
 [draw2d-site]: https://github.com/llgcode/draw2d
 [effective-go]: https://golang.org/doc/effective_go.html 
 [fpdf-site]: http://www.fpdf.org/
-[fpdf-test]: https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go
+[fpdf-test]: https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go
 [gfont]: https://fonts.google.com/
 [github]: https://github.com/looksocial/gofpdf
 [godoc]: https://godoc.org/github.com/looksocial/gofpdf
@@ -293,13 +294,13 @@ for file attachments and annotations.
 [issue109]: https://github.com/looksocial/gofpdf/issues/109
 [jung]: https://github.com/phpdave11/
 [last-commit]: https://github.com/looksocial/gofpdf/commit/603f56990463f011cb1dbb64ef7f872c1adc009a
-[license]: https://raw.githubusercontent.com/phpdave11/gofpdf/master/LICENSE
+[license]: https://raw.githubusercontent.com/phpdave11/gofpdf/main/LICENSE
 [lint]: https://github.com/golang/lint
-[logo]: https://github.com/looksocial/gofpdf/raw/master/image/logo_gofpdf.jpg?raw=true
-[noto]: https://github.com/jsntn/webfonts/blob/master/NotoSansSC-Regular.ttf
+[logo]: https://github.com/looksocial/gofpdf/raw/main/image/logo_gofpdf.jpg?raw=true
+[noto]: https://github.com/jsntn/webfonts/blob/main/NotoSansSC-Regular.ttf
 [pr]: https://help.github.com/articles/using-pull-requests/
 [report]: https://goreportcard.com/report/github.com/looksocial/gofpdf
 [status]: https://travis-ci.org/phpdave11/gofpdf
-[test]: https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go
+[test]: https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go
 [unmaintained]: http://unmaintained.tech/
 [vet]: https://golang.org/cmd/vet/
