@@ -1,11 +1,11 @@
 # gofpdf pdf generator
 
 [![MIT
-licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/phpdave11/gofpdf/master/LICENSE)
+licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/phpdave11/gofpdf/main/LICENSE)
 [![Report](https://goreportcard.com/badge/github.com/looksocial/gofpdf)](https://goreportcard.com/report/github.com/looksocial/gofpdf)
 [![GoDoc](https://img.shields.io/badge/godoc-gofpdf-blue.svg)](https://godoc.org/github.com/looksocial/gofpdf)
 
-![](https://github.com/looksocial/gofpdf/raw/master/image/gofpdf.png?raw=true)
+![](https://github.com/looksocial/gofpdf/raw/main/image/gofpdf.png?raw=true)
 
 > **Note for Contributors and Users**: This package (`gofpdf`) is a fork of [gofpdf](https://github.com/jung-kurt/gofpdf),  **added Thai font support**. All the original functionality of gofpdf is preserved, and this fork includes embedded Thai fonts and enhanced UTF-8 support for Thai language text rendering.
 >
@@ -49,7 +49,7 @@ fork includes **extensive Thai font support** with 18+ embedded Thai font famili
 directly without additional setup. Note that Chinese, Japanese, and Korean
 characters may not be included in many general purpose fonts. For these
 languages, a specialized font (for example,
-[NotoSansSC](https://github.com/jsntn/webfonts/blob/master/NotoSansSC-Regular.ttf)
+[NotoSansSC](https://github.com/jsntn/webfonts/blob/main/NotoSansSC-Regular.ttf)
 for simplified Chinese) can be used.
 
 Also, support is provided to automatically translate UTF-8 runes to code
@@ -82,7 +82,7 @@ err := pdf.OutputFileAndClose("hello.pdf")
 ```
 
 See the functions in the
-[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
+[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go)
 file (shown as examples in this documentation) for more advanced PDF
 examples.
 
@@ -164,7 +164,7 @@ the tests complete.
 
 Please note that these examples run in the context of a test. In order
 run an example as a standalone application, you'll need to examine
-[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
+[fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go)
 for some helper routines, for example `exampleFilename()` and
 `summary()`.
 
@@ -248,7 +248,7 @@ Here are guidelines for making submissions. Your change should
   - be properly documented
   - be formatted with `go fmt`
   - include an example in
-    [fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/master/fpdf_test.go)
+    [fpdf\_test.go](https://github.com/looksocial/gofpdf/blob/main/fpdf_test.go)
     if appropriate
   - conform to the standards of [golint](https://github.com/golang/lint)
     and [go vet](https://golang.org/cmd/vet/), that is, `golint .` and
