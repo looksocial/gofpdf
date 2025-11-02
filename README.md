@@ -188,10 +188,10 @@ automatically for all examples.
 
 Here are some examples of PDFs generated with gofpdf:
 
-**Invoice with Thai Language Support:**
-![Invoice Thai Example](image/demo/invoice_thai.jpg)
+**Invoice:**
+![Invoice Thai Example](image/demo/invoice.jpg)
 
-**Quotation with Thai Language Support:**
+**Quotation:**
 ![Quotation Thai Example](image/demo/quotation_thai.jpg)
 
 **Booking Demo:**

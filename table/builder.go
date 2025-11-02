@@ -146,3 +146,21 @@ func (t *Table) WithPageBreakMargin(margin float64) *Table {
 	return t
 }
 
+// WithCustomRepeatHeader sets a custom header function to be called when
+// a page break occurs.
+//
+// Parameters:
+//   - headerFunc: Function that renders custom headers and returns the new Y position
+//
+// Returns:
+//   - *Table: Returns the Table instance for method chaining.
+//
+// When set, this custom function is called instead of AddHeader() when a page
+// break occurs. The function should render the header elements and return the
+// new Y position after the header. This is useful for complex headers that
+// don't fit the standard AddHeader() rendering.
+func (t *Table) WithCustomRepeatHeader(headerFunc func() float64) *Table {
+	t.CustomRepeatHeader = headerFunc
+	return t
+}
+

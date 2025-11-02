@@ -16,7 +16,7 @@ func main() {
 	// Create new PDF
 	pdf := gofpdf.New("P", "mm", "A4", "")
 
-	// Use embedded fonts for Thai language support
+	// Use embedded fonts (Arial works with or without this, but kept for compatibility)
 	pdf.UseEmbeddedFonts()
 
 	// Add a page
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Save to file in pdf directory
-	outputPath := filepath.Join(pdfDir, "invoice_thai.pdf")
+	outputPath := filepath.Join(pdfDir, "invoice.pdf")
 	err = pdf.OutputFileAndClose(outputPath)
 	if err != nil {
 		log.Fatal(err)
@@ -61,22 +61,18 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 
 	// Logo placeholder (text-based)
 	pdf.SetTextColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "B", 16)
+	pdf.SetFont("Arial", "B", 16)
 	pdf.SetXY(leftMargin, topMargin+5)
 	pdf.Cell(50, 10, "GOFPDF")
 
-	pdf.SetFont("Sarabun", "", 8)
+	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin, topMargin+14)
 	pdf.Cell(50, 5, "REAL ESTATE AGENT")
 
 	// Invoice title on the right
-	pdf.SetFont("Kanit", "B", 28)
+	pdf.SetFont("Arial", "B", 28)
 	pdf.SetXY(pageWidth-rightMargin-100, topMargin+3)
 	pdf.CellFormat(100, 10, "Invoice", "", 0, "R", false, 0, "")
-
-	pdf.SetFont("Sarabun", "", 12)
-	pdf.SetXY(pageWidth-rightMargin-100, topMargin+14)
-	pdf.CellFormat(100, 6, "ใบแจ้งหนี้", "", 0, "R", false, 0, "")
 
 	// Reset text color to black
 	pdf.SetTextColor(0, 0, 0)
@@ -86,90 +82,90 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 	currentY := 48.0
 
 	// Left side - Billed to
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "ชื่อลูกค้า")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(40, 5, "Customer Name")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(leftMargin + 40)
 	pdf.Cell(70, 5, "Salford & Co.")
 
 	// Right side - Invoice details
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(pageWidth-rightMargin-90, currentY)
-	pdf.Cell(30, 5, "เลขที่")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(30, 5, "Invoice No.")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(pageWidth - rightMargin - 60)
 	pdf.Cell(60, 5, "01234")
 
 	currentY += 5
 
 	// Address
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "ที่อยู่")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(40, 5, "Address")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(leftMargin + 40)
 	pdf.Cell(70, 5, "123 Anywhere St., Any City, ST 12345")
 
 	// Date
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(pageWidth-rightMargin-90, currentY)
-	pdf.Cell(30, 5, "วันที่")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(30, 5, "Date")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(pageWidth - rightMargin - 60)
-	pdf.Cell(60, 5, "1 มกราคม 2026")
+	pdf.Cell(60, 5, "January 1, 2026")
 
 	currentY += 5
 
 	// Tax ID
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "เลขผู้เสียภาษี")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(40, 5, "Tax ID")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(leftMargin + 40)
 	pdf.Cell(70, 5, "1234567890")
 
 	// Due date
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(pageWidth-rightMargin-90, currentY)
-	pdf.Cell(30, 5, "ครบกำหนด")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(30, 5, "Due Date")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(pageWidth - rightMargin - 60)
-	pdf.Cell(60, 5, "1 กุมภาพันธ์ 2026")
+	pdf.Cell(60, 5, "February 1, 2026")
 
 	currentY += 8
 
 	// ===== BILLING FROM SECTION =====
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "ผู้ออก")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(40, 5, "Issued By")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(leftMargin + 40)
 	pdf.Cell(70, 5, "Wardiere Inc.")
 
 	// Tax ID
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(pageWidth-rightMargin-90, currentY)
-	pdf.Cell(30, 5, "เลขประจำผู้เสียภาษี")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(30, 5, "Tax ID")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(pageWidth - rightMargin - 60)
 	pdf.Cell(60, 5, "1234567890")
 
 	currentY += 5
 
 	// Address
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "ที่อยู่")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(40, 5, "Address")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(leftMargin + 40)
 	pdf.Cell(70, 5, "123 Anywhere St., Any City, ST 12345")
 
 	// Phone
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(pageWidth-rightMargin-90, currentY)
-	pdf.Cell(30, 5, "เบอร์โทร")
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.Cell(30, 5, "Phone")
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetX(pageWidth - rightMargin - 60)
 	pdf.Cell(60, 5, "123-456-7890")
 
@@ -177,7 +173,7 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 
 	// ===== ITEMS TABLE =====
 	pdf.SetY(currentY)
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 
 	// Table setup
 	tableStartX := leftMargin
@@ -186,14 +182,14 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 
 	// Column widths
 	colWidths := []float64{20, 80, 25, 35, 35}
-	colHeaders := []string{"ลำดับ", "รายการสินค้า", "จำนวน", "ราคา/หน่วย", "ราคารวม"}
+	colHeaders := []string{"No.", "Description", "Qty", "Unit Price", "Total"}
 	colAligns := []string{"C", "L", "C", "R", "R"}
 
 	// Table data
 	tableData := [][]string{
-		{"1", "อาคาร A", "1", "1,200,000.00", "1,200,000.00"},
-		{"2", "ตกแต่ง", "1", "300,000.00", "300,000.00"},
-		{"3", "ค่าดำเนินการ", "1", "150,000.00", "150,000.00"},
+		{"1", "Building A", "1", "1,200,000.00", "1,200,000.00"},
+		{"2", "Interior Design", "1", "300,000.00", "300,000.00"},
+		{"3", "Processing Fee", "1", "150,000.00", "150,000.00"},
 	}
 
 	// Calculate total table width
@@ -204,7 +200,7 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 
 	// Draw table header
 	pdf.SetFillColor(lightGray[0], lightGray[1], lightGray[2])
-	pdf.SetFont("Sarabun", "B", 10)
+	pdf.SetFont("Arial", "B", 10)
 	xPos := tableStartX
 	for i, header := range colHeaders {
 		pdf.SetXY(xPos, tableStartY)
@@ -220,7 +216,7 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 
 	// Draw data rows
 	pdf.SetFillColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 
 	for _, row := range tableData {
 		xPos = tableStartX
@@ -262,28 +258,28 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 	summaryX := pageWidth - rightMargin - 100
 
 	// Notes section on the left
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "หมายเหตุ")
+	pdf.Cell(40, 5, "Notes")
 
 	// Summary on the right
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetXY(summaryX, currentY)
-	pdf.Cell(60, 5, "ราคารวม")
+	pdf.Cell(60, 5, "Subtotal")
 	pdf.SetX(summaryX + 60)
 	pdf.CellFormat(40, 5, "1,650,000.00", "", 0, "R", false, 0, "")
 
 	currentY += 5
 
 	pdf.SetXY(summaryX, currentY)
-	pdf.Cell(60, 5, "ภาษีมูลค่าเพิ่ม (7%)")
+	pdf.Cell(60, 5, "VAT (7%)")
 	pdf.SetX(summaryX + 60)
 	pdf.CellFormat(40, 5, "115,500.00", "", 0, "R", false, 0, "")
 
 	currentY += 5
 
 	pdf.SetXY(summaryX, currentY)
-	pdf.Cell(60, 5, "ส่วนลด")
+	pdf.Cell(60, 5, "Discount")
 	pdf.SetX(summaryX + 60)
 	pdf.CellFormat(40, 5, "0.00", "", 0, "R", false, 0, "")
 
@@ -296,73 +292,66 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 	currentY += 5
 
 	// Total
-	pdf.SetFont("Sarabun", "B", 10)
+	pdf.SetFont("Arial", "B", 10)
 	pdf.SetXY(summaryX, currentY)
-	pdf.Cell(60, 6, "จำนวนเงินรวมทั้งสิ้น")
+	pdf.Cell(60, 6, "Total Amount")
 	pdf.SetX(summaryX + 60)
 	pdf.CellFormat(40, 6, "1,765,500.00", "", 0, "R", false, 0, "")
-
-	currentY += 5
-
-	// Total in Thai text
-	pdf.SetFont("Sarabun", "I", 8)
-	pdf.SetXY(summaryX, currentY)
-	pdf.MultiCell(100, 4, "(หนึ่งล้านเจ็ดแสนหกหมื่นห้าพันห้าร้อยบาทถ้วน)", "", "R", false)
 
 	currentY += 10
 
 	// ===== PAYMENT INFORMATION =====
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(50, 5, "ช่องทางการชำระเงิน")
+	pdf.Cell(50, 5, "Payment Method")
 
 	// Approval section on the right
 	pdf.SetXY(summaryX, currentY)
-	pdf.CellFormat(100, 5, "ผู้อนุมัติ", "", 0, "C", false, 0, "")
+	pdf.CellFormat(100, 5, "Approved By", "", 0, "C", false, 0, "")
 
 	currentY += 6
 
-	pdf.SetFont("Sarabun", "", 8)
+	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(30, 4, "ชื่อบัญชี")
+	pdf.Cell(30, 4, "Account Name")
 	pdf.SetX(leftMargin + 30)
 	pdf.Cell(60, 4, "Ingoude Company")
 
 	// Signature line
 	pdf.SetXY(summaryX, currentY+12)
-	pdf.CellFormat(100, 4, "(โฉลิธ วิลล์ม)", "", 0, "C", false, 0, "")
+	pdf.CellFormat(100, 4, "(Signature)", "", 0, "C", false, 0, "")
 
 	currentY += 4
 
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(30, 4, "เลขที่บัญชี")
+	pdf.Cell(30, 4, "Account Number")
 	pdf.SetX(leftMargin + 30)
 	pdf.Cell(60, 4, "123-456-7890")
 
 	// Title under signature
 	pdf.SetXY(summaryX, currentY+16)
-	pdf.CellFormat(100, 4, "ผู้จัดการ", "", 0, "C", false, 0, "")
+	pdf.CellFormat(100, 4, "Manager", "", 0, "C", false, 0, "")
 
 	// Date line
 	pdf.SetXY(summaryX, currentY+20)
-	pdf.Cell(20, 4, "วันที่")
+	pdf.Cell(20, 4, "Date")
 	pdf.SetX(summaryX + 25)
 	pdf.Cell(60, 4, ".........................")
 
 	currentY += 12
 
 	// ===== TERMS AND CONDITIONS =====
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(40, 5, "เงื่อนไข")
+	pdf.Cell(40, 5, "Terms & Conditions")
 
 	// Approval section on the right
 	pdf.SetXY(summaryX, currentY)
-	pdf.CellFormat(100, 5, "ผู้รับใบแจ้งหนี้", "", 0, "C", false, 0, "")
+	pdf.CellFormat(100, 5, "Invoice Recipient", "", 0, "C", false, 0, "")
 
 	currentY += 6
 
-	pdf.SetFont("Sarabun", "", 7)
+	pdf.SetFont("Arial", "", 7)
 	pdf.SetXY(leftMargin, currentY)
 	termsText := `• Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 • Phasellus congue metus quis vehicula ultrices.`
@@ -371,13 +360,13 @@ func generateInvoice(pdf *gofpdf.Fpdf) {
 
 	// Signature lines for recipient
 	pdf.SetXY(summaryX, currentY+12)
-	pdf.CellFormat(100, 4, "(คิมเบอร์ลี่ เคอับน)", "", 0, "C", false, 0, "")
+	pdf.CellFormat(100, 4, "(Signature)", "", 0, "C", false, 0, "")
 
 	pdf.SetXY(summaryX, currentY+16)
-	pdf.CellFormat(100, 4, "ผู้จัดการ", "", 0, "C", false, 0, "")
+	pdf.CellFormat(100, 4, "Manager", "", 0, "C", false, 0, "")
 
 	pdf.SetXY(summaryX, currentY+20)
-	pdf.Cell(20, 4, "วันที่")
+	pdf.Cell(20, 4, "Date")
 	pdf.SetX(summaryX + 25)
 	pdf.Cell(60, 4, ".........................")
 }

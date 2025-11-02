@@ -220,7 +220,7 @@ go run invoice_pattern2_demo.go
 - Tax calculation display
 
 **Visual Output:**
-![Thai Invoice](image/demo/invoice_thai.jpg)
+![Thai Invoice](image/demo/invoice.jpg)
 
 Run the demo:
 ```bash

@@ -121,8 +121,12 @@ func (t *Table) checkPageBreak(requiredHeight float64) bool {
 		// Add new page
 		t.pdf.AddPage()
 
-		// Repeat header if enabled
-		if t.RepeatHeader {
+		// Repeat header if enabled - check for custom header callback first
+		if t.CustomRepeatHeader != nil {
+			// Call custom header function which returns new Y position
+			newY := t.CustomRepeatHeader()
+			t.pdf.SetY(newY)
+		} else if t.RepeatHeader {
 			t.AddHeader()
 		}
 

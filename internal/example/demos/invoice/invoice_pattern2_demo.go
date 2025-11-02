@@ -18,7 +18,7 @@ func main() {
 	// Create new PDF
 	pdf := gofpdf.New("P", "mm", "A4", "")
 
-	// Use embedded fonts for Thai language support
+	// Use embedded fonts (Arial works with or without this, but kept for compatibility)
 	pdf.UseEmbeddedFonts()
 
 	// Add a page
@@ -64,29 +64,29 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 	pdf.SetFillColor(primaryTeal[0], primaryTeal[1], primaryTeal[2])
 	pdf.Circle(leftMargin+15, currentY+15, 15, "F")
 	pdf.SetTextColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "B", 10)
+	pdf.SetFont("Arial", "B", 10)
 	pdf.SetXY(leftMargin+5, currentY+12)
 	pdf.Cell(20, 6, "LOGO")
 
 	// Company info
 	pdf.SetTextColor(textDark[0], textDark[1], textDark[2])
-	pdf.SetFont("Sarabun", "B", 14)
+	pdf.SetFont("Arial", "B", 14)
 	pdf.SetXY(leftMargin, currentY+32)
 	pdf.Cell(100, 6, "gofpdf Solutions Ltd.")
 
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetXY(leftMargin, currentY+38)
 	pdf.Cell(100, 4, "456 Tech Street, Silicon Valley, CA 94025")
 
 	pdf.SetXY(leftMargin, currentY+42)
 	pdf.Cell(100, 4, "www.gofpdf.com | info@gofpdf.com")
 
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY+46)
 	pdf.Cell(100, 4, "+1 (555) 123-4567")
 
 	// Right side - Page info
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	infoX := pageWidth - rightMargin - 60
 	pdf.SetXY(infoX, currentY)
 	pdf.Cell(30, 5, "Page")
@@ -116,7 +116,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 	currentY += 55
 
 	// ===== BILL TO / SHIP TO SECTION =====
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(30, 5, "BILL TO")
 
@@ -124,7 +124,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 	pdf.Cell(30, 5, "SHIP TO")
 
 	currentY += 5
-	pdf.SetFont("Sarabun", "", 8)
+	pdf.SetFont("Arial", "", 8)
 
 	// Bill To details
 	billToLines := []string{"Michael Chen", "TechStart Industries", "1520 Innovation Drive", "Austin, TX 78701", "mchen@techstart.io"}
@@ -147,12 +147,12 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 	currentY = topMargin + 80
 
 	// ===== SHIPMENT INFORMATION =====
-	pdf.SetFont("Sarabun", "B", 9)
+	pdf.SetFont("Arial", "B", 9)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(100, 5, "SHIPMENT INFORMATION")
 
 	currentY += 5
-	pdf.SetFont("Sarabun", "", 8)
+	pdf.SetFont("Arial", "", 8)
 
 	shipmentItems := [][]string{
 		{"P.O. #", "PO-2024-TS-0789", "Mode of Transportation", "Standard Ground"},
@@ -196,7 +196,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 	// Header
 	pdf.SetFillColor(primaryTeal[0], primaryTeal[1], primaryTeal[2])
 	pdf.SetTextColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "B", 8)
+	pdf.SetFont("Arial", "B", 8)
 
 	xPos := tableStartX
 	for i, header := range colHeaders {
@@ -219,7 +219,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 
 	// Alternating row backgrounds
 	useLightBg := false
-	pdf.SetFont("Sarabun", "", 7) // Slightly smaller font
+	pdf.SetFont("Arial", "", 7) // Slightly smaller font
 	for _, row := range tableData {
 		// Alternate row background
 		if useLightBg {
@@ -273,7 +273,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 		{"INSTALLATION FEE", "500.00"},
 	}
 
-	pdf.SetFont("Sarabun", "", 7)
+	pdf.SetFont("Arial", "", 7)
 	for _, item := range summaryItems {
 		pdf.SetXY(summaryX, currentY)
 		pdf.Cell(50, 4, item[0])
@@ -291,7 +291,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 	pdf.Line(summaryX, currentY, summaryX+80, currentY)
 	currentY += 3
 
-	pdf.SetFont("Sarabun", "B", 10)
+	pdf.SetFont("Arial", "B", 10)
 	pdf.SetFillColor(primaryTeal[0], primaryTeal[1], primaryTeal[2])
 	pdf.SetTextColor(white[0], white[1], white[2])
 	quoteTotalY := currentY - 1
@@ -303,7 +303,7 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 
 	// Special notes section
 	currentY = tableStartY + rowHeight*9 + 4
-	pdf.SetFont("Sarabun", "B", 8)
+	pdf.SetFont("Arial", "B", 8)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(80, 4, "TERMS & CONDITIONS")
 
@@ -315,12 +315,12 @@ func generateInvoicePattern2(pdf *gofpdf.Fpdf) {
 
 	// Declaration and signature
 	currentY = 260
-	pdf.SetFont("Sarabun", "I", 8)
+	pdf.SetFont("Arial", "I", 8)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(100, 4, "I declare that the above information is true and correct to the best of my knowledge.")
 
 	currentY += 6
-	pdf.SetFont("Sarabun", "", 8)
+	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(30, 4, "Signature")
 	pdf.SetXY(leftMargin+60, currentY)

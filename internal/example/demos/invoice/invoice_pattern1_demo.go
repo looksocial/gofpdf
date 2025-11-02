@@ -18,7 +18,7 @@ func main() {
 	// Create new PDF
 	pdf := gofpdf.New("P", "mm", "A4", "")
 
-	// Use embedded fonts for Thai language support
+	// Use embedded fonts (Arial works with or without this, but kept for compatibility)
 	pdf.UseEmbeddedFonts()
 
 	// Add a page
@@ -64,12 +64,12 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 
 	// Company name
 	pdf.SetTextColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "B", 16)
+	pdf.SetFont("Arial", "B", 16)
 	pdf.SetXY(leftMargin, topMargin+3)
 	pdf.Cell(100, 8, "gofpdf Solutions Ltd.")
 
 	// Company address
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetXY(leftMargin, topMargin+11)
 	pdf.Cell(100, 5, "456 Tech Street, Silicon Valley, CA 94025")
 
@@ -82,12 +82,12 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 
 	// ===== INVOICE TITLE AND INFO =====
 	currentY := 40.0
-	pdf.SetFont("Sarabun", "B", 24)
+	pdf.SetFont("Arial", "B", 24)
 	pdf.SetXY(pageWidth-rightMargin-60, currentY)
 	pdf.CellFormat(60, 10, "INVOICE", "", 0, "R", false, 0, "")
 
 	currentY += 12
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetXY(pageWidth-rightMargin-60, currentY)
 	pdf.Cell(30, 5, "DATE:")
 	pdf.SetXY(pageWidth-rightMargin-30, currentY)
@@ -100,7 +100,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 	pdf.Cell(30, 5, "INV-2024-0042")
 
 	currentY += 5
-	pdf.SetFont("Sarabun", "I", 8)
+	pdf.SetFont("Arial", "I", 8)
 	pdf.SetXY(pageWidth-rightMargin-100, currentY)
 	pdf.MultiCell(100, 4, "Payment due within 30 days of invoice date", "", "R", false)
 
@@ -108,7 +108,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 
 	// ===== BILL TO / SHIP TO SECTION =====
 	// Bill To
-	pdf.SetFont("Sarabun", "B", 10)
+	pdf.SetFont("Arial", "B", 10)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(40, 6, "BILL TO")
 
@@ -117,7 +117,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 	pdf.Cell(40, 6, "SHIP TO")
 
 	currentY += 7
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 
 	// Bill To details
 	billToLines := []string{"Sarah Johnson", "", "Digital Innovations Corp.", "789 Business Blvd, Suite 200", "New York, NY 10001"}
@@ -156,7 +156,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 	// Header
 	pdf.SetFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2])
 	pdf.SetTextColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "B", 10)
+	pdf.SetFont("Arial", "B", 10)
 
 	xPos := tableStartX
 	for i, header := range colHeaders {
@@ -178,7 +178,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 		{"API Documentation Bundle", "1", "149.00", "149.00"},
 	}
 
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	for _, row := range tableData {
 		// Alternate row background
 		if useLightBg {
@@ -219,7 +219,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 	currentY = tableStartY + rowHeight*float64(len(tableData)+1) + 2
 
 	// Remarks section
-	pdf.SetFont("Sarabun", "", 9)
+	pdf.SetFont("Arial", "", 9)
 	pdf.SetXY(leftMargin, currentY)
 	pdf.Cell(80, 5, "Remarks / Payment Instructions:")
 	pdf.SetXY(leftMargin, currentY+5)
@@ -250,7 +250,7 @@ func generateInvoicePattern1(pdf *gofpdf.Fpdf) {
 	// Balance Due
 	pdf.SetFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2])
 	pdf.SetTextColor(white[0], white[1], white[2])
-	pdf.SetFont("Sarabun", "B", 12)
+	pdf.SetFont("Arial", "B", 12)
 	pdf.SetXY(summaryX, currentY)
 	pdf.CellFormat(35, 8, "Balance Due", "", 0, "L", true, 0, "")
 	pdf.SetX(summaryX + 35)
