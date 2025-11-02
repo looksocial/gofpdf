@@ -189,10 +189,9 @@ automatically for all examples.
 Here are some examples of PDFs generated with gofpdf:
 
 **Invoice:**
-![Invoice Thai Example](image/demo/invoice.jpg)
+![Invoice Example](image/demo/invoice.jpg)
 
-**Quotation:**
-![Quotation Thai Example](image/demo/quotation_thai.jpg)
+![Invoice 2 Example](image/demo/invoice_demo.jpg)
 
 **Booking Demo:**
 ![Booking Demo Example](image/demo/booking_demo.jpg)
