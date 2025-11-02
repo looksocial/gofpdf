@@ -87,35 +87,35 @@ func main() {
 	data := PackingListData{
 		PageNumber:       1,
 		TotalPages:       1,
-		ExporterName:     "ABC Exports",
-		ExporterAddr1:    "123 California Blvd",
-		ExporterAddr2:    "Longbeach, California, 90807",
+		ExporterName:     "gofpdf Exports",
+		ExporterAddr1:    "1234 Demo Street",
+		ExporterAddr2:    "Sample City, State, 12345",
 		ExporterAddr3:    "United States",
-		ContactName:      "Randy Clarke",
-		TaxID:            "82377112",
-		Email:            "randy@abcexport.com",
-		InvoiceNumber:    "34567",
-		InvoiceDate:      "30 Jul 2022",
-		BillOfLading:     "LONSYD123456",
-		Reference:        "34567",
-		BuyerReference:   "PO223",
+		ContactName:      "Demo User",
+		TaxID:            "GOFPDF-001",
+		Email:            "demo@gofpdf.com",
+		InvoiceNumber:    "GOFPDF-2024-001",
+		InvoiceDate:      "30 Jul 2024",
+		BillOfLading:     "GOFPDF-LONSYD-001",
+		Reference:        "GOFPDF-2024-001",
+		BuyerReference:   "PO-GOFPDF-001",
 		BuyerIfNotCons:   "",
-		ConsigneeName:    "XYZ Imports",
-		ConsigneeAddr:    "456 Business Street, Brisbane, Queensland, 4814, Australia",
+		ConsigneeName:    "gofpdf Imports",
+		ConsigneeAddr:    "5678 Business Avenue, Demo City, State, 54321, Demo Country",
 		MethodOfDispatch: "Sea",
 		TypeOfShipment:   "FCL",
 		CountryOfOrigin:  "United States",
-		CountryOfDest:    "Australia",
-		VesselAircraft:   "MAERSK",
-		VoyageNo:         "V0015",
+		CountryOfDest:    "Demo Country",
+		VesselAircraft:   "GOFPDF VESSEL",
+		VoyageNo:         "GOFPDF-V001",
 		PackingInfo:      "",
-		PortOfLoading:    "Long Beach",
-		DateOfDeparture:  "04 Jul 2022",
-		FinalDestination: "Port of AUSTRALIA",
+		PortOfLoading:    "Demo Port",
+		DateOfDeparture:  "04 Jul 2024",
+		FinalDestination: "Port of Demo",
 		Products: []ProductItem{
 			{
-				ProductCode:  "B-STOOL",
-				Description:  "BAR STOOL ALUMINUM 500 X 100 X 100MM STAINLESS STEEL",
+				ProductCode:  "GOFPDF-STOOL-001",
+				Description:  "gofpdf Demo BAR STOOL ALUMINUM 500 X 100 X 100MM STAINLESS STEEL",
 				UnitQuantity: "150",
 				KindNoOfPkg:  "PALLET X II",
 				NetWeight:    "1,500",
@@ -123,8 +123,8 @@ func main() {
 				Measurements: "12",
 			},
 			{
-				ProductCode:  "B-TABLE",
-				Description:  "BAR TABLE ALUMINUM 1000 X 600 X 400MM STAINLESS STEEL",
+				ProductCode:  "GOFPDF-TABLE-001",
+				Description:  "gofpdf Demo BAR TABLE ALUMINUM 1000 X 600 X 400MM STAINLESS STEEL",
 				UnitQuantity: "75",
 				KindNoOfPkg:  "PALLET X II",
 				NetWeight:    "1,500",
@@ -132,9 +132,9 @@ func main() {
 				Measurements: "15",
 			},
 		},
-		SignatoryCompany:  "ABC Exports",
-		AuthorizedName:    "Randy",
-		AuthorizedSurname: "Clarke",
+		SignatoryCompany:  "gofpdf Exports",
+		AuthorizedName:    "Demo",
+		AuthorizedSurname: "User",
 	}
 
 	// Add a page
@@ -209,9 +209,9 @@ func renderHeader(pdf *gofpdf.Fpdf, data PackingListData, colors Colors) float64
 	pdf.SetFillColor(colors.PrimaryRed[0], colors.PrimaryRed[1], colors.PrimaryRed[2])
 	pdf.Circle(leftMargin+8, currentY+8, 7, "F")
 	pdf.SetTextColor(colors.White[0], colors.White[1], colors.White[2])
-	pdf.SetFont("Arial", "B", 7)
-	pdf.SetXY(leftMargin+4.5, currentY+6)
-	pdf.Cell(7, 4, "ABC")
+	pdf.SetFont("Arial", "B", 5)
+	pdf.SetXY(leftMargin+3, currentY+6)
+	pdf.Cell(10, 4, "gofpdf")
 
 	// Title
 	pdf.SetTextColor(colors.TextDark[0], colors.TextDark[1], colors.TextDark[2])
@@ -229,9 +229,11 @@ func renderHeader(pdf *gofpdf.Fpdf, data PackingListData, colors Colors) float64
 	currentY += 18
 
 	// ===== EXPORTER AND DOCUMENT INFO BOXES =====
+	// Use consistent width matching product table: 25 + 60 + 22 + 22 + 22 + 22 + 22 = 195 mm
+	contentWidth := 25.0 + 60.0 + 22.0 + 22.0 + 22.0 + 22.0 + 22.0
 	boxHeight := 42.0
 	leftBoxWidth := 90.0
-	rightBoxWidth := pageWidth - leftMargin - rightMargin - leftBoxWidth
+	rightBoxWidth := contentWidth - leftBoxWidth
 
 	// Left box - Exporter
 	pdf.SetDrawColor(colors.BorderGray[0], colors.BorderGray[1], colors.BorderGray[2])
@@ -309,8 +311,9 @@ func renderHeader(pdf *gofpdf.Fpdf, data PackingListData, colors Colors) float64
 	currentY += boxHeight + 2
 
 	// ===== CONSIGNEE BOX =====
+	// Use same consistent width as other components
 	consigneeHeight := 22.0
-	pdf.Rect(leftMargin, currentY, pageWidth-leftMargin-rightMargin, consigneeHeight, "D")
+	pdf.Rect(leftMargin, currentY, contentWidth, consigneeHeight, "D")
 
 	pdf.SetFont("Arial", "B", 8)
 	pdf.SetXY(leftMargin+2, currentY+2)
@@ -322,7 +325,7 @@ func renderHeader(pdf *gofpdf.Fpdf, data PackingListData, colors Colors) float64
 
 	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin+2, currentY+12)
-	pdf.MultiCell(160, 3.5, data.ConsigneeAddr, "", "L", false)
+	pdf.MultiCell(contentWidth-4, 3.5, data.ConsigneeAddr, "", "L", false)
 
 	currentY += consigneeHeight + 2
 
@@ -559,7 +562,8 @@ func renderBody(pdf *gofpdf.Fpdf, data PackingListData, colors Colors, startY fl
 	}
 
 	// Add "Total This Page" row (label spans first 2 columns: Product Code + Description)
-	productTable.AddSummaryRow("Total This Page", 2, totals, table.CellStyle{
+	// Use shorter label to fit within 85mm width (25+60 columns)
+	productTable.AddSummaryRow("TOTAL", 2, totals, table.CellStyle{
 		Border:    "1",
 		Bold:      true,
 		FontSize:  7,
@@ -576,7 +580,8 @@ func renderBody(pdf *gofpdf.Fpdf, data PackingListData, colors Colors, startY fl
 	// Only add consignment total if there's enough space
 	if availableSpace >= tableRowHeight {
 		// Add "Consignment Total" row (label spans first 2 columns)
-		productTable.AddSummaryRow("Consignment Total", 2, totals, table.CellStyle{
+		// Use shorter label to fit within 85mm width (25+60 columns)
+		productTable.AddSummaryRow("GRAND TOTAL", 2, totals, table.CellStyle{
 			Border:    "1",
 			Bold:      true,
 			FontSize:  7,
@@ -589,16 +594,17 @@ func renderBody(pdf *gofpdf.Fpdf, data PackingListData, colors Colors, startY fl
 }
 
 func renderFooter(pdf *gofpdf.Fpdf, data PackingListData, colors Colors, startY float64) float64 {
-	pageWidth, _ := pdf.GetPageSize()
-	leftMargin, _, rightMargin, _ := pdf.GetMargins()
+	leftMargin, _, _, _ := pdf.GetMargins()
 
 	currentY := startY
 
 	// ===== ADDITIONAL INFO SECTION =====
+	// Use same consistent width as other components
+	contentWidth := 25.0 + 60.0 + 22.0 + 22.0 + 22.0 + 22.0 + 22.0
 	additionalBoxHeight := 28.0
 	pdf.SetDrawColor(colors.BorderGray[0], colors.BorderGray[1], colors.BorderGray[2])
 	pdf.SetLineWidth(0.5)
-	pdf.Rect(leftMargin, currentY, pageWidth-leftMargin-rightMargin, additionalBoxHeight, "D")
+	pdf.Rect(leftMargin, currentY, contentWidth, additionalBoxHeight, "D")
 
 	pdf.SetFont("Arial", "B", 8)
 	pdf.SetXY(leftMargin+2, currentY+2)

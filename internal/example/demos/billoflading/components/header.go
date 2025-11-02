@@ -11,7 +11,7 @@ func RenderHeader(pdf *gofpdf.Fpdf, leftMargin, topMargin, contentWidth float64)
 	// Date
 	pdf.SetFont("Arial", "", 9)
 	pdf.SetXY(leftMargin, currentY)
-	pdf.Cell(50, 5, "Date: 2/25/2016")
+	pdf.Cell(50, 5, "Date: 2/25/2024")
 
 	// Title - centered
 	pdf.SetFont("Arial", "B", 18)

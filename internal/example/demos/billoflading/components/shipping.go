@@ -22,7 +22,7 @@ func RenderShipFrom(pdf *gofpdf.Fpdf, leftMargin, currentY, contentWidth float64
 	// Bill of Lading Number section header
 	pdf.Rect(leftMargin+contentWidth/2, currentY, contentWidth/2, 6, "F")
 	pdf.SetXY(leftMargin+contentWidth/2+2, currentY+1)
-	pdf.CellFormat(contentWidth/2-4, 5, "Bill of Lading Number: 3411000", "", 0, "L", false, 0, "")
+	pdf.CellFormat(contentWidth/2-4, 5, "Bill of Lading Number: GOFPDF2024001", "", 0, "L", false, 0, "")
 
 	pdf.SetTextColor(black[0], black[1], black[2])
 	currentY += 6
@@ -30,25 +30,25 @@ func RenderShipFrom(pdf *gofpdf.Fpdf, leftMargin, currentY, contentWidth float64
 	// Ship from details - left side
 	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin+3, currentY+2)
-	pdf.Cell(contentWidth/2-6, 5, "Name: King's Rook")
+	pdf.Cell(contentWidth/2-6, 5, "Name: gofpdf Shipping Co.")
 	pdf.SetXY(leftMargin+3, currentY+7)
-	pdf.Cell(contentWidth/2-6, 5, "Address: 1160 Research Blvd.")
+	pdf.Cell(contentWidth/2-6, 5, "Address: 1234 Demo Street")
 	pdf.SetXY(leftMargin+3, currentY+12)
-	pdf.Cell(contentWidth/2-6, 5, "City/State/Zip: St. Louis, MO 63132")
+	pdf.Cell(contentWidth/2-6, 5, "City/State/Zip: Sample City, ST 12345")
 	pdf.SetXY(leftMargin+3, currentY+17)
-	pdf.Cell(contentWidth/2-6, 5, "SID#: 144-460771")
+	pdf.Cell(contentWidth/2-6, 5, "SID#: GOFPDF-001")
 	pdf.SetXY(leftMargin+3, currentY+22)
 	pdf.Cell(20, 5, "FOB:")
 	pdf.Rect(leftMargin+24, currentY+22, 4, 4, "D")
 
 	// Barcode - right side
-	barcodeKey := barcode.RegisterCode128(pdf, "3411000")
+	barcodeKey := barcode.RegisterCode128(pdf, "GOFPDF2024001")
 	barcode.Barcode(pdf, barcodeKey, leftMargin+contentWidth/2+15, currentY+2, 50, 12, false)
 
 	// Barcode number below barcode
 	pdf.SetFont("Arial", "", 7)
 	pdf.SetXY(leftMargin+contentWidth/2+2, currentY+17)
-	pdf.CellFormat(contentWidth/2-4, 4, "3411000", "", 0, "C", false, 0, "")
+	pdf.CellFormat(contentWidth/2-4, 4, "GOFPDF2024001", "", 0, "C", false, 0, "")
 
 	// Draw border
 	pdf.Rect(leftMargin, currentY-6, contentWidth, sectionHeight, "D")
@@ -80,31 +80,31 @@ func RenderShipTo(pdf *gofpdf.Fpdf, leftMargin, currentY, contentWidth float64, 
 	// Ship to details - left side
 	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin+3, currentY+2)
-	pdf.Cell(65, 5, "Name: JOHN ALABAMA")
+	pdf.Cell(65, 5, "Name: gofpdf Receiving LLC")
 	pdf.SetXY(leftMargin+70, currentY+2)
 	pdf.Cell(25, 5, "Location #:")
 
 	pdf.SetXY(leftMargin+3, currentY+7)
-	pdf.Cell(contentWidth/2-6, 5, "Address: 450 ALABAMA STREET")
+	pdf.Cell(contentWidth/2-6, 5, "Address: 5678 Delivery Avenue")
 
 	pdf.SetXY(leftMargin+3, currentY+12)
-	pdf.Cell(contentWidth/2-6, 5, "City/State/Zip: MONTGOMERY, AL 36101")
+	pdf.Cell(contentWidth/2-6, 5, "City/State/Zip: Example Town, EX 54321")
 
 	pdf.SetXY(leftMargin+3, currentY+17)
-	pdf.Cell(40, 5, "CID#: 31283895")
+	pdf.Cell(40, 5, "CID#: GOFPDF-REC-001")
 	pdf.SetXY(leftMargin+45, currentY+17)
 	pdf.Cell(20, 5, "FOB:")
 	pdf.Rect(leftMargin+66, currentY+17, 4, 4, "D")
 
 	// Carrier details - right side
 	pdf.SetXY(leftMargin+contentWidth/2+3, currentY+2)
-	pdf.Cell(contentWidth/2-6, 5, "ABF FREIGHT LINES")
+	pdf.Cell(contentWidth/2-6, 5, "GOFPDF FREIGHT SERVICES")
 	pdf.SetXY(leftMargin+contentWidth/2+3, currentY+7)
 	pdf.Cell(60, 5, "Trailer number:")
 	pdf.SetXY(leftMargin+contentWidth/2+3, currentY+12)
 	pdf.Cell(60, 5, "Seal number(s):")
 	pdf.SetXY(leftMargin+contentWidth/2+3, currentY+17)
-	pdf.Cell(60, 5, "SCAC: ABFG")
+	pdf.Cell(60, 5, "SCAC: GOFP")
 	pdf.SetXY(leftMargin+contentWidth/2+3, currentY+22)
 	pdf.Cell(60, 5, "Pro number:")
 
@@ -130,11 +130,11 @@ func RenderThirdParty(pdf *gofpdf.Fpdf, leftMargin, currentY, contentWidth float
 
 	pdf.SetFont("Arial", "", 8)
 	pdf.SetXY(leftMargin+2, currentY+1)
-	pdf.Cell(contentWidth/2-4, 4, "Name: ALABAMA")
+	pdf.Cell(contentWidth/2-4, 4, "Name: gofpdf Billing Inc.")
 	pdf.SetXY(leftMargin+2, currentY+5)
-	pdf.Cell(contentWidth/2-4, 4, "Address:")
+	pdf.Cell(contentWidth/2-4, 4, "Address: 9999 Billing Blvd.")
 	pdf.SetXY(leftMargin+2, currentY+9)
-	pdf.Cell(contentWidth/2-4, 4, "City/State/Zip: AR")
+	pdf.Cell(contentWidth/2-4, 4, "City/State/Zip: Sample City, ST 99999")
 
 	// Right side - Freight Charge Terms
 	pdf.SetXY(leftMargin+contentWidth/2+2, currentY+1)

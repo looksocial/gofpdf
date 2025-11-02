@@ -138,11 +138,11 @@ func RenderCustomerOrderInformation(pdf *gofpdf.Fpdf, leftMargin, currentY, cont
 
 	// Add data rows
 	orderData := []map[string]interface{}{
-		{"order_number": "9710214818", "pkgs": "4", "weight": "120", "pallet": "", "info": "DC6030"},
-		{"order_number": "3005395012", "pkgs": "6", "weight": "180", "pallet": "", "info": "DC6026"},
-		{"order_number": "9810214774", "pkgs": "2", "weight": "60", "pallet": "", "info": "DC6009"},
-		{"order_number": "4655385217", "pkgs": "1", "weight": "30", "pallet": "X", "info": "DC6403"},
-		{"order_number": "9605134508", "pkgs": "", "weight": "", "pallet": "X", "info": "DC7039"},
+		{"order_number": "GOFPDF-2024-001", "pkgs": "4", "weight": "120", "pallet": "", "info": "DC-GOFPDF-001"},
+		{"order_number": "GOFPDF-2024-002", "pkgs": "6", "weight": "180", "pallet": "", "info": "DC-GOFPDF-002"},
+		{"order_number": "GOFPDF-2024-003", "pkgs": "2", "weight": "60", "pallet": "", "info": "DC-GOFPDF-003"},
+		{"order_number": "GOFPDF-2024-004", "pkgs": "1", "weight": "30", "pallet": "X", "info": "DC-GOFPDF-004"},
+		{"order_number": "GOFPDF-2024-005", "pkgs": "", "weight": "", "pallet": "X", "info": "DC-GOFPDF-005"},
 	}
 
 	for _, row := range orderData {
@@ -151,8 +151,8 @@ func RenderCustomerOrderInformation(pdf *gofpdf.Fpdf, leftMargin, currentY, cont
 
 	// Add grand total row
 	orderTable.AddTotalRow("GRAND TOTAL", map[string]interface{}{
-		"pkgs":   "61",
-		"weight": "2,900",
+		"pkgs":   "13",
+		"weight": "390",
 		"pallet": "",
 		"info":   "",
 	}, table.CellStyle{
@@ -203,30 +203,14 @@ func RenderCarrierInformation(pdf *gofpdf.Fpdf, leftMargin, currentY, contentWid
 
 	// Add data rows
 	carrierData := []map[string]interface{}{
-		{"h_qty": "2", "h_type": "PLT", "p_qty": "200", "p_type": "CTN", "weight": "20,000", "hm": "", "commodity": "Electronics", "nmfc": "", "class": ""},
-		{"h_qty": "3", "h_type": "PLT", "p_qty": "150", "p_type": "BOX", "weight": "15,000", "hm": "X", "commodity": "Machinery Parts", "nmfc": "12345", "class": "70"},
-		{"h_qty": "1", "h_type": "DRM", "p_qty": "100", "p_type": "CTG", "weight": "10,000", "hm": "", "commodity": "Furniture", "nmfc": "67890", "class": "77.5"},
-		{"h_qty": "4", "h_type": "PLT", "p_qty": "250", "p_type": "BOX", "weight": "25,000", "hm": "X", "commodity": "Automotive Supplies", "nmfc": "11111", "class": "85"},
-		{"h_qty": "2", "h_type": "BND", "p_qty": "100", "p_type": "CTN", "weight": "16,000", "hm": "", "commodity": "Textiles", "nmfc": "22222", "class": "60"},
-		{"h_qty": "5", "h_type": "PLT", "p_qty": "300", "p_type": "BOX", "weight": "30,000", "hm": "X", "commodity": "Medical Equipment", "nmfc": "33333", "class": "92.5"},
-		{"h_qty": "1", "h_type": "PLT", "p_qty": "80", "p_type": "CTN", "weight": "8,000", "hm": "", "commodity": "Tools & Hardware", "nmfc": "44444", "class": "55"},
-		{"h_qty": "8", "h_type": "PLT", "p_qty": "450", "p_type": "BOX", "weight": "45,000", "hm": "X", "commodity": "Machinery Components", "nmfc": "50111", "class": "75"},
-		{"h_qty": "2", "h_type": "DRM", "p_qty": "120", "p_type": "CTG", "weight": "12,000", "hm": "", "commodity": "Raw Materials", "nmfc": "50222", "class": "70"},
-		{"h_qty": "7", "h_type": "PLT", "p_qty": "380", "p_type": "BOX", "weight": "38,000", "hm": "X", "commodity": "Packaging Supplies", "nmfc": "50333", "class": "65"},
-		{"h_qty": "3", "h_type": "BND", "p_qty": "160", "p_type": "CTN", "weight": "16,000", "hm": "", "commodity": "Paper Products", "nmfc": "50444", "class": "70"},
-		{"h_qty": "1", "h_type": "PLT", "p_qty": "90", "p_type": "CTN", "weight": "9,000", "hm": "", "commodity": "Consumer Goods", "nmfc": "50555", "class": "60"},
-		{"h_qty": "6", "h_type": "PLT", "p_qty": "420", "p_type": "BOX", "weight": "42,000", "hm": "X", "commodity": "Industrial Pumps", "nmfc": "50666", "class": "85"},
-		{"h_qty": "2", "h_type": "DRM", "p_qty": "140", "p_type": "CTG", "weight": "14,000", "hm": "", "commodity": "Plumbing Fixtures", "nmfc": "50777", "class": "80"},
-		{"h_qty": "4", "h_type": "PLT", "p_qty": "260", "p_type": "BOX", "weight": "26,000", "hm": "X", "commodity": "HVAC Equipment", "nmfc": "50888", "class": "85"},
-		{"h_qty": "1", "h_type": "PLT", "p_qty": "70", "p_type": "CTN", "weight": "7,000", "hm": "", "commodity": "Small Appliances", "nmfc": "50999", "class": "60"},
-		{"h_qty": "9", "h_type": "PLT", "p_qty": "480", "p_type": "BOX", "weight": "48,000", "hm": "X", "commodity": "Steel Beams", "nmfc": "51000", "class": "92.5"},
-		{"h_qty": "2", "h_type": "BND", "p_qty": "130", "p_type": "CTN", "weight": "13,000", "hm": "", "commodity": "Metal Sheets", "nmfc": "51111", "class": "70"},
-		{"h_qty": "5", "h_type": "PLT", "p_qty": "340", "p_type": "BOX", "weight": "34,000", "hm": "X", "commodity": "Concrete Blocks", "nmfc": "51222", "class": "85"},
-		{"h_qty": "3", "h_type": "DRM", "p_qty": "170", "p_type": "CTG", "weight": "17,000", "hm": "", "commodity": "Pipe Fittings", "nmfc": "51333", "class": "75"},
-		{"h_qty": "1", "h_type": "PLT", "p_qty": "60", "p_type": "CTN", "weight": "6,000", "hm": "", "commodity": "Fasteners", "nmfc": "51444", "class": "55"},
-		{"h_qty": "7", "h_type": "PLT", "p_qty": "400", "p_type": "BOX", "weight": "40,000", "hm": "X", "commodity": "Lumber & Wood", "nmfc": "51555", "class": "70"},
-		{"h_qty": "2", "h_type": "BND", "p_qty": "150", "p_type": "CTN", "weight": "15,000", "hm": "", "commodity": "Glass Panels", "nmfc": "51666", "class": "85"},
-		{"h_qty": "4", "h_type": "PLT", "p_qty": "290", "p_type": "BOX", "weight": "29,000", "hm": "X", "commodity": "Insulation Materials", "nmfc": "51777", "class": "75"},
+		{"h_qty": "2", "h_type": "PLT", "p_qty": "200", "p_type": "CTN", "weight": "20,000", "hm": "", "commodity": "gofpdf Demo Electronics", "nmfc": "", "class": ""},
+		{"h_qty": "3", "h_type": "PLT", "p_qty": "150", "p_type": "BOX", "weight": "15,000", "hm": "X", "commodity": "gofpdf Demo Machinery Parts", "nmfc": "GOFPDF-001", "class": "70"},
+		{"h_qty": "1", "h_type": "DRM", "p_qty": "100", "p_type": "CTG", "weight": "10,000", "hm": "", "commodity": "gofpdf Demo Furniture", "nmfc": "GOFPDF-002", "class": "77.5"},
+		{"h_qty": "4", "h_type": "PLT", "p_qty": "250", "p_type": "BOX", "weight": "25,000", "hm": "X", "commodity": "gofpdf Demo Supplies", "nmfc": "GOFPDF-003", "class": "85"},
+		{"h_qty": "2", "h_type": "BND", "p_qty": "100", "p_type": "CTN", "weight": "16,000", "hm": "", "commodity": "gofpdf Demo Materials", "nmfc": "GOFPDF-004", "class": "60"},
+		{"h_qty": "5", "h_type": "PLT", "p_qty": "300", "p_type": "BOX", "weight": "30,000", "hm": "X", "commodity": "gofpdf Demo Equipment", "nmfc": "GOFPDF-005", "class": "92.5"},
+		{"h_qty": "1", "h_type": "PLT", "p_qty": "80", "p_type": "CTN", "weight": "8,000", "hm": "", "commodity": "gofpdf Demo Tools", "nmfc": "GOFPDF-006", "class": "55"},
+		{"h_qty": "3", "h_type": "PLT", "p_qty": "220", "p_type": "BOX", "weight": "22,000", "hm": "X", "commodity": "gofpdf Demo Components", "nmfc": "GOFPDF-007", "class": "75"},
 	}
 
 	var totalHqty, totalPqty int
