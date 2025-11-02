@@ -82,10 +82,10 @@ func (t *Table) AddHeader() {
 //
 // Parameters:
 //   - data: A map containing cell data keyed by column Key values. Special keys include:
-//     * "_align": map[string]string - Per-cell alignment overrides (e.g., {"name": "C"})
-//     * "_rowspan": map[string]int - Per-cell row span values (e.g., {"name": 3})
-//     * "_colspan": map[string]int - Per-cell column span values (e.g., {"name": 2})
-//     * "_nested_<key>": *Table - Nested table to render in the cell for column <key>
+//   - "_align": map[string]string - Per-cell alignment overrides (e.g., {"name": "C"})
+//   - "_rowspan": map[string]int - Per-cell row span values (e.g., {"name": 3})
+//   - "_colspan": map[string]int - Per-cell column span values (e.g., {"name": 2})
+//   - "_nested_<key>": *Table - Nested table to render in the cell for column <key>
 //
 // The method handles:
 //   - Text wrapping for cells with content exceeding available width
@@ -450,7 +450,7 @@ func (t *Table) AddRow(data map[string]interface{}) {
 			// Track this row span - use originalRowHeight + spacing for tracking positions
 			// to match actual rendered Y positions
 			for j := 1; j < cellRowSpan; j++ {
-				nextKey := fmt.Sprintf("%d-%d", i, int(currentY+float64(j)*(originalRowHeight+rowSpacing)))
+				nextKey := fmt.Sprintf("%d-%d", i, int(currentY+float64(j)*originalRowHeight+float64(j)*rowSpacing))
 				t.rowSpanTracker[nextKey] = cellRowSpan - j
 			}
 		}
